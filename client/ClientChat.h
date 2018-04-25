@@ -6,7 +6,7 @@
 class ClientChat : public Client
 {
 public:
-    ClientChat(std::string address, std::string port);
+    ClientChat(std::string address, std::string port, asio::ssl::context &context);
 
     virtual void onRead(ByteBufferPtr bufferPtr) override;
     void execute(CommandCode cmd, ByteBufferPtr bufferPtr);

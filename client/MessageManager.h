@@ -18,6 +18,7 @@ private:
 
     std::pair<CommandCode, ByteBufferPtr> getCodeAndData(const std::string& str);
     std::shared_ptr<ClientChat> clientChatPtr_;
+    asio::ssl::context context_;
 };
 
 #endif // MESSAGEMANAGER_H

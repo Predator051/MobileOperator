@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    MessageManager mng("127.0.0.1", "1122");
+    MessageManager mng("127.0.0.1", "2222");
 
     mng.start();
     //LOG_INFO("Threads FINISHED!!!");

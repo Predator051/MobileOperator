@@ -3,12 +3,13 @@
 
 #include "define.h"
 #include "asio.hpp"
+#include <asio/ssl.hpp>
 
 class Client
         : public std::enable_shared_from_this<Client>
 {
 public:
-    Client(std::string address, std::string port);
+    Client(std::string address, std::string port, asio::ssl::context &context);
 
     void start();
 
@@ -18,15 +19,15 @@ public:
 private:
     void handleResolveEndPoint(asio::error_code error, asio::ip::tcp::resolver::iterator iterator);
     void handleConnect(asio::error_code error, asio::ip::tcp::resolver::iterator iterator);
-
+    bool verify_certificate(bool preverified, asio::ssl::verify_context& ctx);
     void read();
-
+    void handle_handshake(const asio::error_code& error);
     void handleRead(std::error_code error, size_t bufferSize);
 
     void handleWrite(ByteBufferPtr data, asio::error_code error, size_t writeBytes);
 
     asio::io_service& io_service_;
-    asio::ip::tcp::socket socket_;
+    asio::ssl::stream<asio::ip::tcp::socket> socket_;
 
     std::string address_;
     std::string port_;
@@ -36,6 +37,7 @@ private:
     ByteBuffer buffer_;
 
     uint16_t nextMsgSize_;
+    std::atomic_bool isVerified;
 };
 
 #endif // CLIENT_H
