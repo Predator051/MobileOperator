@@ -1,7 +1,7 @@
 #ifndef MESSAGEMANAGER_H
 #define MESSAGEMANAGER_H
 
-#include "ClientChat.h"
+#include "RRManager.h"
 #include <utility>
 
 class MessageManager
@@ -17,7 +17,7 @@ private:
     std::string getData(std::istringstream &issData);
 
     std::pair<CommandCode, ByteBufferPtr> getCodeAndData(const std::string& str);
-    std::shared_ptr<ClientChat> clientChatPtr_;
+    std::shared_ptr<RRMananger> clientChatPtr_;
     asio::ssl::context context_;
 };
 

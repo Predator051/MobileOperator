@@ -6,7 +6,7 @@ MessageManager::MessageManager(const std::string &address, const std::string &po
     : context_(asio::ssl::context::sslv23)
 {
     context_.load_verify_file("server.crt");
-    clientChatPtr_ = std::make_shared<ClientChat>(address, port, context_);
+    clientChatPtr_ = std::make_shared<RRMananger>(address, port, context_);
 }
 
 void MessageManager::start()
