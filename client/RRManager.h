@@ -9,7 +9,7 @@ public:
     RRMananger(std::string address, std::string port, asio::ssl::context &context);
 
     virtual void onRead(ByteBufferPtr bufferPtr) override;
-    void execute(CommandCode cmd, ByteBufferPtr bufferPtr);
+    void execute(ByteBufferPtr bufferPtr);
 
 private:
 

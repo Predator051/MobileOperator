@@ -43,8 +43,13 @@ void ClientChannel::setReadHandle(const std::function<void (std::shared_ptr<Clie
     readHandle_ = value;
 }
 
-void ClientChannel::execute(CommandCode code, ByteBufferPtr data)
+void ClientChannel::execute(ByteBufferPtr data)
 {
-    Helper::insertCommandCode(data, code);
     write(data);
+}
+
+void ClientChannel::execute(const std::string &data)
+{
+    ByteBufferPtr buff = std::make_shared<ByteBuffer>(data.begin(), data.end());
+    write(buff);
 }

@@ -1,6 +1,7 @@
 #include "MessageManager.h"
 #include "Worker.h"
 #include <string>
+#include "Protobuf/Message.pb.h"
 
 MessageManager::MessageManager(const std::string &address, const std::string &port)
     : context_(asio::ssl::context::sslv23)
@@ -14,11 +15,17 @@ void MessageManager::start()
     clientChatPtr_->start();
     Worker::instance()->start();
 
-    std::string message;
-    std::cin >> message;
-    std::vector<uint8_t> vec(message.begin(), message.end());
-    clientChatPtr_->execute(CommandCode::ANSWER_ON_REQUEST_TO_CONNECT
-                            , std::make_shared<ByteBuffer>(vec));
+    std::string messageID;
+    std::cin >> messageID;
+    sample::proto::Message mes;
+    mes.set_id(messageID);
+
+    std::string messageData;
+    std::cin >> messageData;
+    mes.set_data(messageData);
+    std::string outMessage = mes.SerializeAsString();
+    std::vector<uint8_t> vec(outMessage.begin(), outMessage.end());
+    clientChatPtr_->execute(std::make_shared<ByteBuffer>(vec));
 
     Worker::instance()->join();
 }

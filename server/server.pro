@@ -31,7 +31,7 @@ SOURCES += main.cpp \
     ClientChannel.cpp \
     Config/ConfigManager.cpp \
     Config/GlobalParams.cpp \
-    $$PWD/Protobuf/Message.pb.h
+    $$PWD/Protobuf/Message.pb.cc
 
 HEADERS += \
     ../common/Worker.h \
@@ -43,7 +43,7 @@ HEADERS += \
     ClientChannel.h \
     Config/ConfigManager.h \
     Config/GlobalParams.h \
-    $$PWD/Protobuf/Message.pb.cc
+    $$PWD/Protobuf/Message.pb.h
 
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_SERVER/debugs)
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_SERVER/debugs)

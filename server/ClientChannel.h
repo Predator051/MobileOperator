@@ -15,7 +15,8 @@ public:
 
     void setReadHandle(const std::function<void (std::shared_ptr<ClientChannel>, ByteBufferPtr)> &value);
     void setDisconectedHandle(const std::function<void (std::shared_ptr<ClientChannel>)> &disconectedHandle);
-    void execute(CommandCode code, ByteBufferPtr data);
+    void execute(ByteBufferPtr data);
+    void execute(const std::string& data);
 private:
 
     std::shared_ptr<ClientChannel> getPtrFromThis();

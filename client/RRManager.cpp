@@ -12,9 +12,11 @@ RRMananger::RRMananger(std::string address, std::string port, asio::ssl::context
 
 void RRMananger::onRead(ByteBufferPtr bufferPtr)
 {
+    std::string buff(bufferPtr->begin(), bufferPtr->end());
+    LOG_INFO(buff);
 }
 
-void RRMananger::execute(CommandCode cmd, ByteBufferPtr bufferPtr)
+void RRMananger::execute(ByteBufferPtr bufferPtr)
 {
     write(bufferPtr);
 }

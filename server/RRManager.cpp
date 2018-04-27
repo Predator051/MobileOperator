@@ -1,6 +1,6 @@
 #include "RRManager.h"
 #include "Helper.h"
-
+#include "Protobuf/Message.pb.h"
 
 RRManager::RRManager(Server& server)
 {
@@ -28,7 +28,10 @@ void RRManager::onConnected(ClientChannelPtr session)
 void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBufferPtr buffPtr)
 {
     std::string str(buffPtr->begin(), buffPtr->end());
-    LOG_INFO(str);
+    sample::proto::Message mes;
+    mes.ParseFromString(str);
+    LOG_INFO("ID " << mes.id() << " DATA: " << mes.data());
+    session->execute("I got it!");
 }
 
 void RRManager::disconectedSession(std::shared_ptr<ClientChannel> session)

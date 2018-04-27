@@ -17,6 +17,7 @@ INCLUDEPATH += $$PWD/../common \
 LIBS += -lcrypto \
         -lssl \
         -lconfig++ \
+        -lprotobuf
 
 
 TEMPLATE = app
@@ -29,7 +30,8 @@ SOURCES += main.cpp \
     MessageManager.cpp \
     Config/ConfigManager.cpp \
     Config/GlobalParams.cpp \
-    RRManager.cpp
+    RRManager.cpp \
+    $$PWD/Protobuf/Message.pb.cc
 
 HEADERS += \
     ../common/Worker.h \
@@ -39,9 +41,16 @@ HEADERS += \
     MessageManager.h \
     Config/ConfigManager.h \
     Config/GlobalParams.h \
-    RRManager.h
+    RRManager.h \
+    $$PWD/Protobuf/Message.pb.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
+system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)
+system(rm -rf Protobuf && mkdir Protobuf)
+
+PROTOPATH = $$PWD/../mobileoperator_proto/protoSourse
+system(protoc --proto_path=$${PROTOPATH} --cpp_out=./Protobuf $${PROTOPATH}/Message.proto)
+
 
 DISTFILES += \
     Config/config.cfg
