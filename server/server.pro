@@ -47,9 +47,10 @@ HEADERS += \
 
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_SERVER/debugs)
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_SERVER/debugs)
-system($$PWD/../mobileoperator_proto/protoc.sh):HAS_BIN=FALSE
-system(mkdir Protobuf)
-system(cp $$PWD/../mobileoperator_proto/sourse/* $$PWD/Protobuf)
+system(rm -rf Protobuf && mkdir Protobuf)
+
+PROTOPATH = $$PWD/../mobileoperator_proto/protoSourse
+system(protoc --proto_path=$${PROTOPATH} --cpp_out=./Protobuf $${PROTOPATH}/Message.proto)
 
 DISTFILES += \
     ../dump_db.sql \
