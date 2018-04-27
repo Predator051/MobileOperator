@@ -178,7 +178,7 @@ void Client::handleWrite(ByteBufferPtr data
     else
     {
         LOG_ERR("Message write data"
-                << *data
+                << Helper::bufferToString(data, 0, 0)
                 << " description: "
                 << error.message());
     }

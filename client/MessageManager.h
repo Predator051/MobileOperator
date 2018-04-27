@@ -16,7 +16,6 @@ private:
     int getCode(const std::string& strCode);
     std::string getData(std::istringstream &issData);
 
-    std::pair<CommandCode, ByteBufferPtr> getCodeAndData(const std::string& str);
     std::shared_ptr<RRMananger> clientChatPtr_;
     asio::ssl::context context_;
 };
