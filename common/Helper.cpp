@@ -20,12 +20,6 @@ uint16_t Helper::mergeTwoByte(uint8_t high, uint8_t low)
     return number;
 }
 
-void Helper::insertCommandCode(ByteBufferPtr buffPtr, CommandCode code)
-{
-    buffPtr->emplace(buffPtr->begin(), static_cast<uint8_t>(code));
-
-}
-
 ByteBuffer Helper::stringToBuffer(const std::string &str)
 {
     return ByteBuffer(str.begin(), str.end());

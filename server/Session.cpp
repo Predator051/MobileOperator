@@ -122,7 +122,7 @@ void Session::handleWrite(ByteBufferPtr data, asio::error_code error, size_t wri
                  << data->size()
                  << " writed size = "
                  << writedBytesCount
-                 << " " << *data);
+                 << " " << Helper::bufferToString(data, 0, 0));
     }
     else
     {
