@@ -1,0 +1,3 @@
+[submodule "mobileoperator_proto"]
+	path = mobileoperator_proto
+	url = git@github.com:Predator051/mobileoperator_proto.git
