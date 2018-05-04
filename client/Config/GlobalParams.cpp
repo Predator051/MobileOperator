@@ -2,6 +2,7 @@
 
 std::string GlobalsParams::listenChannelAddress;
 int GlobalsParams::listenChannelPort;
+bool GlobalsParams::isConnected;
 
 int GlobalsParams::getListenChannelPort()
 {
@@ -11,6 +12,16 @@ int GlobalsParams::getListenChannelPort()
 void GlobalsParams::setListenChannelPort(int value)
 {
     listenChannelPort = value;
+}
+
+bool GlobalsParams::getIsConnected()
+{
+    return isConnected;
+}
+
+void GlobalsParams::setIsConnected(bool value)
+{
+    isConnected = value;
 }
 
 std::string GlobalsParams::getListenChannelAddress()

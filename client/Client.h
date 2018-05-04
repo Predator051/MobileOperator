@@ -15,6 +15,7 @@ public:
 
     void write(ByteBufferPtr buffPtr);
     virtual void onRead(ByteBufferPtr bufferPtr) = 0;
+    virtual void onError(ClientError error) = 0;
 
 private:
     void handleResolveEndPoint(asio::error_code error, asio::ip::tcp::resolver::iterator iterator);

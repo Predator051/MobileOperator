@@ -1,4 +1,5 @@
-QT -= gui
+QT += gui
+QT += widgets
 
 TARGET = client
 CONFIG += console
@@ -31,7 +32,8 @@ SOURCES += main.cpp \
     Config/ConfigManager.cpp \
     Config/GlobalParams.cpp \
     RRManager.cpp \
-    $$PWD/Protobuf/Message.pb.cc
+    $$PWD/Protobuf/Message.pb.cc \
+    LehaStar.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -42,7 +44,8 @@ HEADERS += \
     Config/ConfigManager.h \
     Config/GlobalParams.h \
     RRManager.h \
-    $$PWD/Protobuf/Message.pb.h
+    $$PWD/Protobuf/Message.pb.h \
+    LehaStar.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)
@@ -54,3 +57,6 @@ system(protoc --proto_path=$${PROTOPATH} --cpp_out=./Protobuf $${PROTOPATH}/Mess
 
 DISTFILES += \
     Config/config.cfg
+
+FORMS += \
+    LehaStar.ui

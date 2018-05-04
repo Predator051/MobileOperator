@@ -16,7 +16,20 @@ void RRMananger::onRead(ByteBufferPtr bufferPtr)
     LOG_INFO(buff);
 }
 
+void RRMananger::onError(ClientError error)
+{
+    if(onError_)
+    {
+        onError_(error);
+    }
+}
+
 void RRMananger::execute(ByteBufferPtr bufferPtr)
 {
     write(bufferPtr);
+}
+
+void RRMananger::setOnErrorCB(const std::function<void (ClientError error)> &onError)
+{
+    onError_ = onError;
 }

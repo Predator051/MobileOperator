@@ -15,5 +15,11 @@
 typedef std::vector<uint8_t> ByteBuffer;
 typedef std::shared_ptr<ByteBuffer> ByteBufferPtr;
 
+enum class ClientError {
+    status_success = 0,
+    status_disconnect,
+    status_cannot_connect
+};
+
 #endif // DEFINE
 

@@ -1,7 +1,7 @@
 #include "Client.h"
 #include "Worker.h"
 #include "Helper.h"
-
+#include "Config/GlobalParams.h"
 
 Client::Client(std::string address, std::string port, asio::ssl::context& context)
     : io_service_(Worker::instance()->io_service())
@@ -87,7 +87,8 @@ void Client::handleConnect(asio::error_code error, asio::ip::tcp::resolver::iter
     else
     {
         LOG_ERR("Faiure: connect to address: "
-                << address_ << ":" << port_ << " error: " <<error.message());
+                << address_ << ":" << port_ << " error: " << error.message());
+        onError(ClientError::status_cannot_connect);
     }
 }
 
@@ -135,6 +136,7 @@ void Client::handle_handshake(const asio::error_code &error)
     else
     {
         std::cout << "Handshake failed: " << error.message() << "\n";
+        onError(ClientError::status_cannot_connect);
     }
 }
 
@@ -165,6 +167,7 @@ void Client::handleRead(std::error_code error, size_t bufferSize)
     {
         LOG_ERR("Failure: read error code " << error.value()
                 << " description: " << error.message());
+        onError(ClientError::status_disconnect);
     }
 }
 

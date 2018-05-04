@@ -15,17 +15,33 @@ void MessageManager::start()
     clientChatPtr_->start();
     Worker::instance()->start();
 
-    std::string messageID;
-    std::cin >> messageID;
-    sample::proto::Message mes;
-    mes.set_id(messageID);
+//    std::string messageID;
+//    std::cin >> messageID;
+//    sample::proto::Message mes;
+//    mes.set_id(messageID);
 
-    std::string messageData;
-    std::cin >> messageData;
-    mes.set_data(messageData);
-    std::string outMessage = mes.SerializeAsString();
-    std::vector<uint8_t> vec(outMessage.begin(), outMessage.end());
-    clientChatPtr_->execute(std::make_shared<ByteBuffer>(vec));
+//    std::string messageData;
+//    std::cin >> messageData;
+//    mes.set_data(messageData);
+//    std::string outMessage = mes.SerializeAsString();
+//    std::vector<uint8_t> vec(outMessage.begin(), outMessage.end());
+//    clientChatPtr_->execute(std::make_shared<ByteBuffer>(vec));
 
     Worker::instance()->join();
+}
+
+void MessageManager::setOnErrorCB(const std::function<void (ClientError)> &onError)
+{
+    if(clientChatPtr_)
+    {
+        clientChatPtr_->setOnErrorCB(onError);
+    }
+}
+
+void MessageManager::execute(ByteBufferPtr buff)
+{
+    if(clientChatPtr_ && buff)
+    {
+        clientChatPtr_->execute(buff);
+    }
 }

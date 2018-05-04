@@ -9,7 +9,10 @@ class MessageManager
 public:
     MessageManager(const std::string& address, const std::string& port);
 
-    void start();
+    void start();    
+    void setOnErrorCB(const std::function<void (ClientError error)> &onError);
+    void execute(ByteBufferPtr buff);
+
 private:
     void printHelp();
 
