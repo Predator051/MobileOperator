@@ -33,7 +33,8 @@ SOURCES += main.cpp \
     Config/GlobalParams.cpp \
     RRManager.cpp \
     $$PWD/Protobuf/Message.pb.cc \
-    LehaStar.cpp
+    LehaStar.cpp \
+    Protobuf/MessageType.pb.cc
 
 HEADERS += \
     ../common/Worker.h \
@@ -45,7 +46,8 @@ HEADERS += \
     Config/GlobalParams.h \
     RRManager.h \
     $$PWD/Protobuf/Message.pb.h \
-    LehaStar.h
+    LehaStar.h \
+    Protobuf/MessageType.pb.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)
@@ -53,10 +55,13 @@ system(rm -rf Protobuf && mkdir Protobuf)
 
 PROTOPATH = $$PWD/../mobileoperator_proto/protoSourse
 system(protoc --proto_path=$${PROTOPATH} --cpp_out=./Protobuf $${PROTOPATH}/Message.proto)
+system(protoc --proto_path=$${PROTOPATH} --cpp_out=./Protobuf $${PROTOPATH}/MessageType.proto)
 
 
 DISTFILES += \
-    Config/config.cfg
+    Config/config.cfg \
+    ../mobileoperator_proto/protoSourse/MessageType.proto \
+    ../mobileoperator_proto/protoSourse/Message.proto
 
 FORMS += \
     LehaStar.ui

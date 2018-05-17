@@ -12,7 +12,10 @@ LehaStar::LehaStar(std::shared_ptr<MessageManager> message_manager, QWidget *par
 {
     ui->setupUi(this);
     if(message_manager)
+    {
         message_manager_->setOnErrorCB(std::bind(&LehaStar::onError, this, std::placeholders::_1));
+        message_manager->setOnReadCB(std::bind(&LehaStar::onRead, this, std::placeholders::_1));
+    }
 
     timer_ = new QTimer();
     timer_->setInterval(1000);
@@ -39,6 +42,16 @@ void LehaStar::onError(ClientError error)
     }
 }
 
+void LehaStar::onRead(const network::ResponseContext & response)
+{
+    switch (response.message_type_()) {
+    case network::MO_REGISTER:
+        network::RegisterMessageResponse regRes = response.register_response();
+        userRegister(regRes);
+        break;
+    }
+}
+
 void LehaStar::cannotConnectError()
 {
     QMessageBox::critical(this, "Error", "Failure trying connect to network!");
@@ -50,15 +63,15 @@ void LehaStar::disconnectError()
     QMessageBox::critical(this, "Error", "You was disconnected! Restart application for connecting");
 }
 
+void LehaStar::userRegister(const network::RegisterMessageResponse &response)
+{
+    ui->registerLabel->setText(QString::fromStdString(response.messagetext()));
+    LOG_INFO(response.messagetext());
+}
+
 void LehaStar::on_testBtn_clicked()
 {
-    if(!ui->textEdit->toPlainText().isEmpty())
-    {
-        std::string str = ui->textEdit->toPlainText().toStdString();
-        ByteBufferPtr buff = std::make_shared<ByteBuffer>(str.begin(), str.end());
-        if(message_manager_)
-            message_manager_->execute(buff);
-    }
+
 }
 
 void LehaStar::updateTime()
@@ -67,4 +80,14 @@ void LehaStar::updateTime()
     {
         cannotConnectError();
     }*/
+}
+
+void LehaStar::on_testBtn_2_clicked()
+{
+    if(!ui->loginUPTE->toPlainText().isEmpty() && !ui->passwordUPTE->toPlainText().isEmpty())
+    {
+        std::string login = ui->loginUPTE->toPlainText().toStdString();
+        std::string password = ui->passwordUPTE->toPlainText().toStdString();
+        message_manager_->createUser(login, password);
+    }
 }

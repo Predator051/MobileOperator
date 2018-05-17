@@ -14,19 +14,6 @@ void MessageManager::start()
 {
     clientChatPtr_->start();
     Worker::instance()->start();
-
-//    std::string messageID;
-//    std::cin >> messageID;
-//    sample::proto::Message mes;
-//    mes.set_id(messageID);
-
-//    std::string messageData;
-//    std::cin >> messageData;
-//    mes.set_data(messageData);
-//    std::string outMessage = mes.SerializeAsString();
-//    std::vector<uint8_t> vec(outMessage.begin(), outMessage.end());
-//    clientChatPtr_->execute(std::make_shared<ByteBuffer>(vec));
-
     Worker::instance()->join();
 }
 
@@ -38,10 +25,53 @@ void MessageManager::setOnErrorCB(const std::function<void (ClientError)> &onErr
     }
 }
 
+void MessageManager::setOnReadCB(const std::function<void (const network::ResponseContext &)> &onRead)
+{
+    if(clientChatPtr_)
+    {
+        clientChatPtr_->setOnRead(onRead);
+    }
+}
+
 void MessageManager::execute(ByteBufferPtr buff)
 {
     if(clientChatPtr_ && buff)
     {
         clientChatPtr_->execute(buff);
     }
+}
+
+void MessageManager::execute(const std::string &buff)
+{
+    ByteBufferPtr buffPtr = std::make_shared<ByteBuffer>(buff.begin(), buff.end());
+
+    execute(buffPtr);
+}
+
+bool MessageManager::userAuth(const std::string &login, const std::string &password)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_AUTH);
+
+    network::AuthMessage* authMess = new network::AuthMessage();
+    authMess->set_login(login);
+    authMess->set_pass(password);
+
+    context.set_allocated_auth_message_(authMess);
+
+    execute(context.SerializeAsString());
+}
+
+bool MessageManager::createUser(const std::string &login, const std::string &password)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_REGISTER);
+
+    network::RegisterMessage* authMess = new network::RegisterMessage();
+    authMess->set_login(login);
+    authMess->set_pass(password);
+
+    context.set_allocated_register_message_(authMess);
+
+    execute(context.SerializeAsString());
 }

@@ -3,6 +3,7 @@
 
 #include "Client.h"
 #include <functional>
+#include <Protobuf/Message.pb.h>
 
 class RRMananger : public Client
 {
@@ -15,8 +16,11 @@ public:
 
     void setOnErrorCB(const std::function<void (ClientError error)> &onError);
 
+    void setOnRead(const std::function<void (const network::ResponseContext&)> &onRead);
+
 private:
     std::function<void (ClientError error)> onError_;
+    std::function<void (const network::ResponseContext&)> onRead_;
 };
 
 #endif // CLIENTCHAT_H
