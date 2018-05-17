@@ -15,5 +15,18 @@
 typedef std::vector<uint8_t> ByteBuffer;
 typedef std::shared_ptr<ByteBuffer> ByteBufferPtr;
 
+enum class PostgresRole{
+    CLIENT = 0,
+    ADMIN = 1,
+    AUTH = 2
+};
+
+enum class ResponseCode {
+    status_internal_error = 0,
+    status_success = 1,
+    status_bad_request = 2,
+    status_unknown_command = 3
+};
+
 #endif // DEFINE
 
