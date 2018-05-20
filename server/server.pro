@@ -36,7 +36,9 @@ SOURCES += main.cpp \
     Protobuf/MessageType.pb.cc \
     Crypto/CryptoHelper.cpp \
     Logic/AuthLogic.cpp \
-    db/AuthPostgresManager.cpp
+    db/AuthPostgresManager.cpp \
+    Types/UserInfo.cpp \
+    db/SessionPostgresInfo.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -53,7 +55,9 @@ HEADERS += \
     Protobuf/MessageType.pb.h \
     Crypto/CryptoHelper.h \
     Logic/AuthLogic.h \
-    db/AuthPostgresManager.h
+    db/AuthPostgresManager.h \
+    Types/UserInfo.h \
+    db/SessionPostgresInfo.h
 
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_SERVER/debugs)
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_SERVER/debugs)

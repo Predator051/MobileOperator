@@ -33,6 +33,26 @@ std::shared_ptr<ClientChannel> ClientChannel::getPtrFromThis()
     return std::static_pointer_cast<ClientChannel>(shared_from_this());
 }
 
+std::string ClientChannel::getSessionId() const
+{
+    return sessionId;
+}
+
+void ClientChannel::setSessionId(const std::string &value)
+{
+    sessionId = value;
+}
+
+UserInfo ClientChannel::getUserInfo() const
+{
+    return userInfo;
+}
+
+void ClientChannel::setUserInfo(const UserInfo &value)
+{
+    userInfo = value;
+}
+
 void ClientChannel::setDisconectedHandle(const std::function<void (std::shared_ptr<ClientChannel>)> &disconectedHandle)
 {
     disconectedHandle_ = disconectedHandle;

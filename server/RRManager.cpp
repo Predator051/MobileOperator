@@ -1,6 +1,8 @@
 #include "RRManager.h"
 #include "Helper.h"
 #include "Logic/AuthLogic.h"
+#include "db/SessionPostgresInfo.h"
+#include "db/AuthPostgresManager.h"
 
 RRManager::RRManager(Server& server)
 {
@@ -34,7 +36,11 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
     ResponseCode responseCode;
     switch (reqContext.message_type_()) {
     case network::MO_AUTH:
-        responseCode = authRR(reqContext);
+        responseCode = authRR(reqContext, resContext);
+        if(responseCode == ResponseCode::status_success)
+        {
+            saveSession(session, resContext);
+        }
         break;
     case network::MO_REGISTER:
         responseCode = registerRR(reqContext, resContext);
@@ -52,11 +58,58 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
 void RRManager::disconectedSession(std::shared_ptr<ClientChannel> session)
 {
     LOG_INFO("Disconected!");
+    SessionPostgresInfo::removeSession(session->getSessionId());
 }
 
-ResponseCode RRManager::authRR(const network::RequestContext &request)
+void RRManager::saveSession(std::shared_ptr<ClientChannel> session, const network::ResponseContext &response)
 {
+    session->setSessionId(response.session_info().session_id());
+    UserInfo userInfo;
+    AuthPostgresManager::getUserByLogin(response.session_info().login(), userInfo);
+    session->setUserInfo(userInfo);
+}
 
+ResponseCode RRManager::authRR(const network::RequestContext &request, network::ResponseContext &response)
+{
+    ResponseCode resultStatus = ResponseCode::status_internal_error;
+
+    do
+    {
+        if(!request.has_auth_message_())
+        {
+            LOG_ERR("Where is not register message!");
+            resultStatus = ResponseCode::status_bad_request;
+            break;
+        }
+
+        network::AuthMessage authMessage = request.auth_message_();
+
+        if(!authMessage.has_login())
+        {
+            LOG_ERR("Where is not login value!");
+            resultStatus = ResponseCode::status_bad_request;
+            break;
+        }
+
+        if(!authMessage.has_pass())
+        {
+            LOG_ERR("Where is not password value!");
+            resultStatus = ResponseCode::status_bad_request;
+            break;
+        }
+        network::AuthMessageResponse* regRes = new network::AuthMessageResponse();
+        network::SessionInfo* sessionInfo = new network::SessionInfo();
+        resultStatus = AuthLogic::authUser(authMessage, regRes, sessionInfo);
+
+        response.set_allocated_auth_response(regRes);
+        response.set_allocated_session_info(sessionInfo);
+
+        LOG_INFO("Send response-message to client " << authMessage.login()
+                 << " message [" << regRes->server_message() << "]");
+    }
+    while(false);
+
+    return resultStatus;
 }
 
 ResponseCode RRManager::registerRR(const network::RequestContext &requests, network::ResponseContext& response)
@@ -92,6 +145,9 @@ ResponseCode RRManager::registerRR(const network::RequestContext &requests, netw
         resultStatus = AuthLogic::createUser(authMessage, regRes);
 
         response.set_allocated_register_response(regRes);
+
+        LOG_INFO("Send response-message to client " << authMessage.login()
+                 << " message [" << regRes->messagetext() << "]");
     }
     while(false);
 

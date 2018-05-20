@@ -25,7 +25,8 @@ enum class ResponseCode {
     status_internal_error = 0,
     status_success = 1,
     status_bad_request = 2,
-    status_unknown_command = 3
+    status_unknown_command = 3,
+    status_does_not_exist = 4
 };
 
 #endif // DEFINE
