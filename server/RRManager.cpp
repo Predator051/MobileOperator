@@ -32,6 +32,15 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
     network::RequestContext reqContext;
     network::ResponseContext resContext;
     reqContext.ParseFromString(Helper::bufferToString(buffPtr, 0, 0));
+    LOG_INFO("Request [" << reqContext.message_type_()
+             << "] from [" << reqContext.login());
+
+    UserInfo  uInfo;
+    if(AuthPostgresManager::getUserByLogin(reqContext.login(), uInfo) == ResponseCode::status_success)
+    {
+        LOG_INFO("User id [" << uInfo.user_id << "]");
+        session->setUserInfo(uInfo);
+    }
 
     ResponseCode responseCode;
     switch (reqContext.message_type_()) {
@@ -44,6 +53,9 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
         break;
     case network::MO_REGISTER:
         responseCode = registerRR(reqContext, resContext);
+        break;
+    case network::MO_LOGOUT:
+        responseCode = logOutRR(reqContext);
         break;
     default:
         responseCode = ResponseCode::status_unknown_command;
@@ -148,6 +160,35 @@ ResponseCode RRManager::registerRR(const network::RequestContext &requests, netw
 
         LOG_INFO("Send response-message to client " << authMessage.login()
                  << " message [" << regRes->messagetext() << "]");
+    }
+    while(false);
+
+    return resultStatus;
+}
+
+ResponseCode RRManager::logOutRR(const network::RequestContext &requests)
+{
+    ResponseCode resultStatus = ResponseCode::status_internal_error;
+
+    do
+    {
+        if(!requests.has_logout_message_())
+        {
+            LOG_ERR("Where is not register message!");
+            resultStatus = ResponseCode::status_bad_request;
+            break;
+        }
+
+        network::LogOutMessage logoutMessage = requests.logout_message_();
+
+        if(!logoutMessage.has_login())
+        {
+            LOG_ERR("Where is not login value!");
+            resultStatus = ResponseCode::status_bad_request;
+            break;
+        }
+
+        resultStatus = AuthLogic::logout(logoutMessage);
     }
     while(false);
 

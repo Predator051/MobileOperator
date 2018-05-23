@@ -138,11 +138,28 @@ ResponseCode AuthLogic::authUser(const network::AuthMessage &authData, network::
             LOG_INFO("User " << userInfo.user_login
                      << " was entered incorrect password");
             response->set_server_message("Incorrect password or login!");
-            response->set_status(true);
+            response->set_status(false);
         }
     }
     while(false);
 
     return result;
 
+}
+
+ResponseCode AuthLogic::logout(const network::LogOutMessage &logoutData)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        std::string login = logoutData.login();
+        UserInfo uInfo;
+        AuthPostgresManager::getUserByLogin(login, uInfo);
+
+        result = SessionPostgresInfo::removeSession(uInfo.user_id);
+    }
+    while(false);
+
+    return result;
 }

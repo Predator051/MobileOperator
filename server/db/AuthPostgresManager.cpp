@@ -112,8 +112,10 @@ ResponseCode AuthPostgresManager::getUserByLogin(const std::string &login, UserI
             pqxx::work work(*connection, "getUserByLogin");
 
             pqxx::result query_result = work.prepared("getUserByLogin")(login).exec();
-
-            userInfo.parse_from_pg(query_result[0]);
+            if(!query_result.empty())
+            {
+                userInfo.parse_from_pg(query_result[0]);
+            }
 
             work.commit();
             result = ResponseCode::status_success;

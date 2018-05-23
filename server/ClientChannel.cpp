@@ -1,6 +1,7 @@
 #include "ClientChannel.h"
 #include <memory>
 #include "Helper.h"
+#include "db/AuthPostgresManager.h"
 
 ClientChannel::ClientChannel(asio::ssl::context& context)
     :Session(context)

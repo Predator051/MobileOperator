@@ -10,6 +10,7 @@ class SessionPostgresInfo
 public:
     static ResponseCode createSession(const uint64_t& user_id, const std::string& session_id);
     static ResponseCode removeSession(const std::string& session_id);
+    static ResponseCode removeSession(const uint64_t& user_id);
     static ResponseCode isSessionExist(const uint64_t& user_id, bool &isExist);
     static ResponseCode getSession(const uint64_t& user_id, std::string& session_id);
 

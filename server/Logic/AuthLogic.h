@@ -9,6 +9,7 @@ class AuthLogic
 public:
     static ResponseCode createUser(const network::RegisterMessage& authData, network::RegisterMessageResponse *response);
     static ResponseCode authUser(const network::AuthMessage& authData, network::AuthMessageResponse *response, network::SessionInfo *sessionInfo);
+    static ResponseCode logout(const network::LogOutMessage& logoutData);
 };
 
 #endif // AUTHLOGIC_H
