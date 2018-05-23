@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <mutex>
 #include <Protobuf/Message.pb.h>
+#include "boost/signals2.hpp"
 
 RRMananger::RRMananger(std::string address, std::string port, asio::ssl::context& context)
     : Client(address, port, context)

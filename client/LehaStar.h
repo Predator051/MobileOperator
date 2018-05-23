@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include "MessageManager.h"
+#include "ClientView.h"
+#include "AdminView.h"
 
 namespace Ui {
 class LehaStar;
@@ -22,15 +24,20 @@ private slots:
     void on_testBtn_clicked();
     void updateTime();
     void on_testBtn_2_clicked();
+    void logout();
 
 private:
     Ui::LehaStar *ui;
     std::shared_ptr<MessageManager> message_manager_;
+    std::shared_ptr<ClientView> clientView_;
+    std::shared_ptr<AdminView> adminView_;
 
     void cannotConnectError();
     void disconnectError();
 
     void userRegister(const network::RegisterMessageResponse& response);
+    void userAuth(const network::AuthMessageResponse& authMessage
+                  , const network::SessionInfo& sessionInfo);
     QTimer* timer_;
 };
 

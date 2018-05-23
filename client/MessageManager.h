@@ -14,8 +14,10 @@ public:
     void setOnReadCB(const std::function<void (const network::ResponseContext&)> &onRead);
     void execute(ByteBufferPtr buff);
     void execute(const std::string& buff);
+    void execute(network::RequestContext &context);
     bool userAuth(const std::string& login, const std::string& password);
     bool createUser(const std::string& login, const std::string& password);
+    bool logout();
 private:
 
     std::shared_ptr<RRMananger> clientChatPtr_;

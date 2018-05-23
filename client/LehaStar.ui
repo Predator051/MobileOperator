@@ -78,6 +78,19 @@
      <string>ENTER</string>
     </property>
    </widget>
+   <widget class="QLabel" name="registerLabel_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>221</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
@@ -135,10 +148,10 @@
    <widget class="QLabel" name="registerLabel">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>300</y>
-      <width>59</width>
-      <height>14</height>
+      <x>10</x>
+      <y>259</y>
+      <width>221</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">

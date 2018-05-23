@@ -34,7 +34,10 @@ SOURCES += main.cpp \
     RRManager.cpp \
     $$PWD/Protobuf/Message.pb.cc \
     LehaStar.cpp \
-    Protobuf/MessageType.pb.cc
+    Protobuf/MessageType.pb.cc \
+    Crypto/CryptoHelper.cpp \
+    ClientView.cpp \
+    AdminView.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -47,7 +50,10 @@ HEADERS += \
     RRManager.h \
     $$PWD/Protobuf/Message.pb.h \
     LehaStar.h \
-    Protobuf/MessageType.pb.h
+    Protobuf/MessageType.pb.h \
+    Crypto/CryptoHelper.h \
+    ClientView.h \
+    AdminView.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)
@@ -64,4 +70,6 @@ DISTFILES += \
     ../mobileoperator_proto/protoSourse/Message.proto
 
 FORMS += \
-    LehaStar.ui
+    LehaStar.ui \
+    clientview.ui \
+    adminview.ui

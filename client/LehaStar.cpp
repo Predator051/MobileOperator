@@ -46,9 +46,18 @@ void LehaStar::onRead(const network::ResponseContext & response)
 {
     switch (response.message_type_()) {
     case network::MO_REGISTER:
+    {
         network::RegisterMessageResponse regRes = response.register_response();
         userRegister(regRes);
         break;
+    }
+    case network::MO_AUTH:
+    {
+        network::AuthMessageResponse authRes = response.auth_response();
+        network::SessionInfo sessionInfo = response.session_info();
+        userAuth(authRes, sessionInfo);
+        break;
+    }
     }
 }
 
@@ -69,9 +78,42 @@ void LehaStar::userRegister(const network::RegisterMessageResponse &response)
     LOG_INFO(response.messagetext());
 }
 
+void LehaStar::userAuth(const network::AuthMessageResponse &authMessage, const network::SessionInfo &sessionInfo)
+{
+    ui->registerLabel_2->setText(QString::fromStdString(authMessage.server_message()));
+    LOG_INFO(authMessage.server_message());
+    LOG_INFO("Role: [" << sessionInfo.role() << "]:" << sessionInfo.session_id());
+    if(authMessage.status())
+    {
+        GlobalsParams::getSessionInfo() = sessionInfo;
+        switch (sessionInfo.role()) {
+        case 0:
+            clientView_ = std::make_shared<ClientView>();
+            connect(clientView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
+            clientView_->setAttribute(Qt::WA_DeleteOnClose, true);
+            clientView_->show();
+            break;
+        case 1:
+            adminView_ = std::make_shared<AdminView>();
+            connect(adminView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
+            adminView_->setAttribute(Qt::WA_DeleteOnClose, true);
+            adminView_->show();
+
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 void LehaStar::on_testBtn_clicked()
 {
-
+    if(!ui->loginTE->toPlainText().isEmpty() && !ui->passwordTE->toPlainText().isEmpty())
+    {
+        std::string login = ui->loginTE->toPlainText().toStdString();
+        std::string password = ui->passwordTE->toPlainText().toStdString();
+        message_manager_->userAuth(login, password);
+    }
 }
 
 void LehaStar::updateTime()
@@ -90,4 +132,10 @@ void LehaStar::on_testBtn_2_clicked()
         std::string password = ui->passwordUPTE->toPlainText().toStdString();
         message_manager_->createUser(login, password);
     }
+}
+
+void LehaStar::logout()
+{
+    LOG_INFO("Close event!");
+    message_manager_->logout();
 }
