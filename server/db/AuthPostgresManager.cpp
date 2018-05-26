@@ -130,3 +130,49 @@ ResponseCode AuthPostgresManager::getUserByLogin(const std::string &login, UserI
 
     return result;
 }
+
+ResponseCode AuthPostgresManager::getUserByUserId(uint64_t user_id, UserInfo &userInfo)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getAuthConnection();
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getUserByUserId"))
+            {
+                connection->prepare("getUserByUserId",
+                                   "SELECT user_id, user_login, password, creation_time, role, salt "
+                                   "FROM server_users "
+                                   "WHERE user_id = $1;");
+            }
+
+            pqxx::work work(*connection, "getUserByUserId");
+
+            pqxx::result query_result = work.prepared("getUserByUserId")(user_id).exec();
+            if(!query_result.empty())
+            {
+                userInfo.parse_from_pg(query_result[0]);
+            }
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query getUserByUserId err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}

@@ -19,8 +19,8 @@ ResponseCode SessionPostgresInfo::createSession(const uint64_t &user_id, const s
             if(!DBHelper::getDBHelper().isPrepared("createSession"))
             {
                 connection->prepare("createSession",
-                                   "INSERT INTO server_session(session, user_id) "
-                                   "VALUES ($1::varchar, $2);");
+                                   "INSERT INTO server_session(session, user_id, end_date) "
+                                   "VALUES ($1::varchar, $2, DEFAULT);");
             }
 
             pqxx::work work(*connection, "createSession");
@@ -214,6 +214,183 @@ ResponseCode SessionPostgresInfo::getSession(const uint64_t &user_id, std::strin
         catch(const std::exception& e)
         {
             LOG_ERR("Failure: trying to query getSession err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode SessionPostgresInfo::getUserBySession(const std::string &session_id, uint64_t &user_id)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getAuthConnection();
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getUserBySession"))
+            {
+                connection->prepare("getUserBySession",
+                                   "SELECT user_id FROM server_session "
+                                   "WHERE session = $1::varchar;");
+            }
+
+            pqxx::work work(*connection, "getUserBySession");
+
+            pqxx::result res = work.prepared("getUserBySession")(session_id).exec();
+
+            if(res.empty())
+            {
+                result = ResponseCode::status_does_not_exist;
+                break;
+            }
+
+            user_id = res[0][0].as<uint64_t>();
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query getSession err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode SessionPostgresInfo::updateSessionToNow(const std::string &session_id)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getAuthConnection();
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("UpdateSessionToNow"))
+            {
+                connection->prepare("UpdateSessionToNow",
+                                   "UPDATE server_session SET end_date = NOW() "
+                                   "WHERE session = $1;");
+            }
+
+            pqxx::work work(*connection, "UpdateSessionToNow");
+
+            work.prepared("UpdateSessionToNow")(session_id).exec();
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query UpdateSessionToNow err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode SessionPostgresInfo::checkSession(const std::string &session_id, bool &check)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getAuthConnection();
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("checkSession"))
+            {
+                connection->prepare("checkSession",
+                                   "SELECT session FROM server_session "
+                                   "WHERE session = $1 AND end_date > NOW();");
+            }
+
+            pqxx::work work(*connection, "checkSession");
+
+            pqxx::result res = work.prepared("checkSession")(session_id).exec();
+
+            if(res.empty())
+                check = false;
+            else
+                check = true;
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query checkSession err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode SessionPostgresInfo::updateSession(const std::string &session_id)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getAuthConnection();
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("updateSession"))
+            {
+                connection->prepare("updateSession",
+                                   "UPDATE server_session SET end_date = DEFAULT "
+                                   "WHERE session = $1;");
+            }
+
+            pqxx::work work(*connection, "updateSession");
+
+            work.prepared("updateSession")(session_id).exec();
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query updateSession err: " << e.what());
             break;
         }
     }

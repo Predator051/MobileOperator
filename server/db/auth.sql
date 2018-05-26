@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS server_session;
 DROP TABLE IF EXISTS server_users;
 
 CREATE TABLE server_users (
@@ -13,6 +14,7 @@ CREATE TABLE server_users (
 CREATE TABLE server_session (
     session text NOT NULL,
     user_id BIGINT NOT NULL,
+    end_date timestamp DEFAULT NOW() + '2 hours',
     PRIMARY KEY(session),
     FOREIGN KEY(user_id) REFERENCES server_users (user_id)
 );

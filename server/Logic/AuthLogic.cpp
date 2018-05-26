@@ -103,17 +103,6 @@ ResponseCode AuthLogic::authUser(const network::AuthMessage &authData, network::
         }
 
         std::string session;
-        bool isSessionExist = false;
-        result = SessionPostgresInfo::isSessionExist(userInfo.user_id, isSessionExist);
-
-        if(isSessionExist)
-        {
-            LOG_INFO("User " << userInfo.user_login << " already login!");
-            response->set_server_message("This user already login");
-            response->set_status(false);
-            result = ResponseCode::status_internal_error;
-            break;
-        }
 
         std::string passWithSalt = authData.pass() + GlobalsParams::getPostgres_default_solt();
         std::string uniqSalt = userInfo.salt;
@@ -147,17 +136,15 @@ ResponseCode AuthLogic::authUser(const network::AuthMessage &authData, network::
 
 }
 
-ResponseCode AuthLogic::logout(const network::LogOutMessage &logoutData)
+ResponseCode AuthLogic::logout(const network::RequestContext &request)
 {
     ResponseCode result = ResponseCode::status_internal_error;
 
     do
     {
-        std::string login = logoutData.login();
-        UserInfo uInfo;
-        AuthPostgresManager::getUserByLogin(login, uInfo);
+        auto session = request.session_info();
 
-        result = SessionPostgresInfo::removeSession(uInfo.user_id);
+        result = SessionPostgresInfo::updateSessionToNow(session.session_id());
     }
     while(false);
 

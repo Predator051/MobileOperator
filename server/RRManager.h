@@ -18,10 +18,11 @@ private:
     void saveSession(std::shared_ptr<ClientChannel> session
                      , const network::ResponseContext &response);
 
+    ResponseCode checkSession(network::RequestContext& request, network::ResponseContext& response);
+
     ResponseCode authRR(const network::RequestContext& request, network::ResponseContext& response);
     ResponseCode registerRR(const network::RequestContext& requests, network::ResponseContext &response);
     ResponseCode logOutRR(const network::RequestContext& requests);
-
     std::vector<ClientChannelPtr> sessions_;
 };
 

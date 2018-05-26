@@ -13,7 +13,10 @@ public:
     static ResponseCode removeSession(const uint64_t& user_id);
     static ResponseCode isSessionExist(const uint64_t& user_id, bool &isExist);
     static ResponseCode getSession(const uint64_t& user_id, std::string& session_id);
-
+    static ResponseCode getUserBySession(const std::string& session_id, uint64_t& user_id);
+    static ResponseCode updateSessionToNow(const std::string& session_id);
+    static ResponseCode checkSession(const std::string& session_id, bool& check);
+    static ResponseCode updateSession(const std::string& session_id);
 };
 
 #endif // SESSIONPOSTGRESINFO_H

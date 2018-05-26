@@ -35,42 +35,64 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
     LOG_INFO("Request [" << reqContext.message_type_()
              << "] from [" << reqContext.login());
 
-    UserInfo  uInfo;
-    if(AuthPostgresManager::getUserByLogin(reqContext.login(), uInfo) == ResponseCode::status_success)
-    {
-        LOG_INFO("User id [" << uInfo.user_id << "]");
-        session->setUserInfo(uInfo);
-    }
-
     ResponseCode responseCode;
-    switch (reqContext.message_type_()) {
-    case network::MO_AUTH:
-        responseCode = authRR(reqContext, resContext);
-        if(responseCode == ResponseCode::status_success)
+    do
+    {
+        if(!reqContext.has_session_info() && reqContext.message_type_() != network::MO_AUTH)
         {
-            saveSession(session, resContext);
+            LOG_INFO("User trying to do with out login");
+            responseCode = ResponseCode::status_bad_request;
+            break;
         }
-        break;
-    case network::MO_REGISTER:
-        responseCode = registerRR(reqContext, resContext);
-        break;
-    case network::MO_LOGOUT:
-        responseCode = logOutRR(reqContext);
-        break;
-    default:
-        responseCode = ResponseCode::status_unknown_command;
-        break;
+
+        responseCode = checkSession(reqContext, resContext);
+        if(responseCode != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to check session!");
+            break;
+        }
+
+        UserInfo  uInfo;
+        if(AuthPostgresManager::getUserByLogin(reqContext.login(), uInfo) == ResponseCode::status_success)
+        {
+            LOG_INFO("User id [" << uInfo.user_id << "]");
+            session->setUserInfo(uInfo);
+        }
+
+        switch (reqContext.message_type_()) {
+        case network::MO_AUTH:
+            responseCode = authRR(reqContext, resContext);
+            if(responseCode == ResponseCode::status_success)
+            {
+                saveSession(session, resContext);
+            }
+            break;
+        case network::MO_REGISTER:
+            responseCode = registerRR(reqContext, resContext);
+            break;
+        case network::MO_LOGOUT:
+            responseCode = logOutRR(reqContext);
+            break;
+        default:
+            responseCode = ResponseCode::status_unknown_command;
+            break;
+        }
     }
+    while(false);
+
+    LOG_INFO("Request [" << reqContext.message_type_()
+             << "] end with status: " << static_cast<int>(responseCode));
 
     resContext.set_error_code(static_cast<int32_t>(responseCode));
     resContext.set_message_type_(reqContext.message_type_());
+
+
     session->execute(resContext.SerializeAsString());
 }
 
 void RRManager::disconectedSession(std::shared_ptr<ClientChannel> session)
 {
-    LOG_INFO("Disconected!");
-    SessionPostgresInfo::removeSession(session->getSessionId());
+    LOG_INFO("Disconected! session: " << session->getSessionId());
 }
 
 void RRManager::saveSession(std::shared_ptr<ClientChannel> session, const network::ResponseContext &response)
@@ -80,6 +102,56 @@ void RRManager::saveSession(std::shared_ptr<ClientChannel> session, const networ
     AuthPostgresManager::getUserByLogin(response.session_info().login(), userInfo);
     session->setUserInfo(userInfo);
 }
+
+ResponseCode RRManager::checkSession(network::RequestContext &request, network::ResponseContext &response)
+{
+    ResponseCode resultStatus = ResponseCode::status_internal_error;
+
+    do
+    {
+        bool isGood;
+        resultStatus = SessionPostgresInfo::checkSession(request.session_info().session_id(), isGood);
+
+        if(resultStatus != ResponseCode::status_success)
+        {
+            LOG_ERR("Cannot check session!");
+            break;
+        }
+
+        if(isGood)
+        {
+            resultStatus = SessionPostgresInfo::updateSession(request.session_info().session_id());
+            if(resultStatus != ResponseCode::status_success)
+            {
+                LOG_ERR("Cannot update session!");
+                break;
+            }
+
+            uint64_t user_id;
+            resultStatus = SessionPostgresInfo::getUserBySession(request.session_info().session_id(), user_id);
+            if(resultStatus != ResponseCode::status_success)
+            {
+                LOG_ERR("Cannot update session!");
+                break;
+            }
+
+            UserInfo uInfo;
+            AuthPostgresManager::getUserByUserId(user_id, uInfo);
+
+            network::SessionInfo* info = new network::SessionInfo();
+            info->set_session_id(request.session_info().session_id());
+            info->set_login(uInfo.user_login);
+            info->set_role(uInfo.role);
+            info->set_userid(user_id);
+
+            response.set_allocated_session_info(info);
+        }
+    }
+    while(false);
+
+    return resultStatus;
+}
+
 
 ResponseCode RRManager::authRR(const network::RequestContext &request, network::ResponseContext &response)
 {
@@ -172,23 +244,14 @@ ResponseCode RRManager::logOutRR(const network::RequestContext &requests)
 
     do
     {
-        if(!requests.has_logout_message_())
+        if(!requests.has_logout_message())
         {
-            LOG_ERR("Where is not register message!");
+            LOG_ERR("Where is not logout message!");
             resultStatus = ResponseCode::status_bad_request;
             break;
         }
 
-        network::LogOutMessage logoutMessage = requests.logout_message_();
-
-        if(!logoutMessage.has_login())
-        {
-            LOG_ERR("Where is not login value!");
-            resultStatus = ResponseCode::status_bad_request;
-            break;
-        }
-
-        resultStatus = AuthLogic::logout(logoutMessage);
+        resultStatus = AuthLogic::logout(requests);
     }
     while(false);
 
