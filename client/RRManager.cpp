@@ -34,6 +34,14 @@ void RRMananger::onError(ClientError error)
     }
 }
 
+void RRMananger::onConnected()
+{
+    if(onConnected_)
+    {
+        onConnected_();
+    }
+}
+
 void RRMananger::execute(ByteBufferPtr bufferPtr)
 {
     write(bufferPtr);
@@ -47,4 +55,9 @@ void RRMananger::setOnErrorCB(const std::function<void (ClientError error)> &onE
 void RRMananger::setOnRead(const std::function<void (const network::ResponseContext &)> &onRead)
 {
     onRead_ = onRead;
+}
+
+void RRMananger::setOnConnected(const std::function<void ()> &onConnected)
+{
+    onConnected_ = onConnected;
 }

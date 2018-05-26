@@ -131,6 +131,7 @@ void Client::handle_handshake(const asio::error_code &error)
 {
     if (!error)
     {
+        onConnected();
         read();
     }
     else
@@ -177,6 +178,7 @@ void Client::handleWrite(ByteBufferPtr data
 {
     if(!error)
     {
+        LOG_INFO("Writed message!");
     }
     else
     {

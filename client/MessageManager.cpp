@@ -4,6 +4,7 @@
 #include "Protobuf/Message.pb.h"
 #include "Crypto/CryptoHelper.h"
 #include "Config/GlobalParams.h"
+#include "Cache/CacheManager.h"
 
 MessageManager::MessageManager(const std::string &address, const std::string &port)
     : context_(asio::ssl::context::sslv23)
@@ -35,6 +36,14 @@ void MessageManager::setOnReadCB(const std::function<void (const network::Respon
     }
 }
 
+void MessageManager::setOnConnected(const std::function<void ()> &onConnected)
+{
+    if(clientChatPtr_)
+    {
+        clientChatPtr_->setOnConnected(onConnected);
+    }
+}
+
 void MessageManager::execute(ByteBufferPtr buff)
 {
     if(clientChatPtr_ && buff)
@@ -53,6 +62,10 @@ void MessageManager::execute(const std::string &buff)
 void MessageManager::execute(network::RequestContext &context)
 {
     context.set_login(GlobalsParams::getSessionInfo().login());
+    context.set_allocated_session_info(new network::SessionInfo(sessionInfo_));
+
+    LOG_INFO("Send request " << context.message_type_());
+
     execute(context.SerializeAsString());
 }
 
@@ -100,6 +113,36 @@ bool MessageManager::logout()
     network::LogOutMessage* authMess = new network::LogOutMessage();
     authMess->set_login(GlobalsParams::getSessionInfo().login());
 
-    context.set_allocated_logout_message_(authMess);
+    context.set_allocated_logout_message(authMess);
     execute(context);
+}
+
+bool MessageManager::userStatus()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_USER_STATUS);
+
+    std::string lastSession = CacheManager::instance("").getLastSession();
+    LOG_INFO("Last session: " << lastSession);
+    if(lastSession.empty())
+        return false;
+
+    KeyValueMap cache = CacheManager::instance(lastSession).getCache();
+    network::SessionInfo ses;
+    ses.set_session_id(lastSession);
+    ses.set_login(cache["login"]);
+    ses.set_userid(atoi(cache["user_id"].c_str()));
+
+    GlobalsParams::getSessionInfo() = sessionInfo_ = ses;
+    execute(context);
+}
+
+network::SessionInfo& MessageManager::sessionInfo()
+{
+    return sessionInfo_;
+}
+
+void MessageManager::setSessionInfo(const network::SessionInfo &sessionInfo)
+{
+    sessionInfo_ = sessionInfo;
 }

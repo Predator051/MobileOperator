@@ -19,6 +19,7 @@ public:
     ~LehaStar();
     void onError(ClientError error);
     void onRead(const network::ResponseContext &response);
+    void onConnected();
 
 private slots:
     void on_testBtn_clicked();
@@ -38,7 +39,13 @@ private:
     void userRegister(const network::RegisterMessageResponse& response);
     void userAuth(const network::AuthMessageResponse& authMessage
                   , const network::SessionInfo& sessionInfo);
+    void userStatus(const network::SessionInfo& sessionInfo);
     QTimer* timer_;
+    bool isTrySinc;
+
+    // QWidget interface
+protected:
+    void showEvent(QShowEvent *event);
 };
 
 #endif // LEHASTAR_H

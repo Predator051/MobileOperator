@@ -6,14 +6,14 @@
 #include "Config/ConfigManager.h"
 #include "Config/GlobalParams.h"
 
-int showWindow(std::shared_ptr<MessageManager> messManag)
+void showWindow(std::shared_ptr<MessageManager> messManag)
 {
     messManag->start();
 }
 
 int main(int argc, char *argv[])
 {
-//   MessageManager mng("127.0.0.1", "2222");
+//    MessageManager mng("127.0.0.1", "2222");
     ConfigManager configManager;
     if(!configManager.readConfigFIle("config.cfg"))
     {

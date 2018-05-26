@@ -37,7 +37,8 @@ SOURCES += main.cpp \
     Protobuf/MessageType.pb.cc \
     Crypto/CryptoHelper.cpp \
     ClientView.cpp \
-    AdminView.cpp
+    AdminView.cpp \
+    Cache/CacheManager.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -53,7 +54,8 @@ HEADERS += \
     Protobuf/MessageType.pb.h \
     Crypto/CryptoHelper.h \
     ClientView.h \
-    AdminView.h
+    AdminView.h \
+    Cache/CacheManager.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)
