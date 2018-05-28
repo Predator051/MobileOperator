@@ -1,5 +1,5 @@
 #include "Helper.h"
-
+#include <time.h>
 
 ByteBufferPtr Helper::makeBuffer(ByteBufferPtr buffPtr)
 {
@@ -28,6 +28,13 @@ ByteBuffer Helper::stringToBuffer(const std::string &str)
 std::string Helper::bufferToString(ByteBufferPtr buffPtr, uint posFrom, uint posTo)
 {
     return std::string(buffPtr->begin()+posFrom, buffPtr->end() - posTo);
+}
+
+uint64_t Helper::strDateToInt(const std::string &date)
+{
+    struct tm tm;
+    strptime(date.c_str(), "%Y-%m-%d %H:%M:%S", &tm);
+    return mktime(&tm);
 }
 
 //bool Helper::parceFromPostgres(const pqxx::tuple &data, NewUser &user)

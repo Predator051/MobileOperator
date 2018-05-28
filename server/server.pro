@@ -38,7 +38,11 @@ SOURCES += main.cpp \
     Logic/AuthLogic.cpp \
     db/AuthPostgresManager.cpp \
     Types/UserInfo.cpp \
-    db/SessionPostgresInfo.cpp
+    db/SessionPostgresInfo.cpp \
+    db/ClientPostgresManager.cpp \
+    db/UserPackagePostgresManager.cpp \
+    Types/RateInfo.cpp \
+    db/RatePostgresManager.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -57,7 +61,11 @@ HEADERS += \
     Logic/AuthLogic.h \
     db/AuthPostgresManager.h \
     Types/UserInfo.h \
-    db/SessionPostgresInfo.h
+    db/SessionPostgresInfo.h \
+    db/ClientPostgresManager.h \
+    db/UserPackagePostgresManager.h \
+    Types/RateInfo.h \
+    db/RatePostgresManager.h
 
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_SERVER/debugs)
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_SERVER/debugs)
@@ -72,4 +80,6 @@ DISTFILES += \
     Config/config.cfg \
     ../mobileoperator_proto/protoSourse/Message.proto \
     ../mobileoperator_proto/protoSourse/MessageType.proto \
-    db/auth.sql
+    db/auth.sql \
+    db/malahov.sql \
+    db/update.sql

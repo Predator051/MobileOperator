@@ -96,8 +96,6 @@ void Session::handleRead(asio::error_code error, size_t bufferSize)
         {
             std::string message(buffer_.begin(), buffer_.end());
 
-            LOG_INFO("Message: "<< message);
-
             //write(message);
             onRead(buffer_);
             nextMsgSize_ = 0;
@@ -121,8 +119,7 @@ void Session::handleWrite(ByteBufferPtr data, asio::error_code error, size_t wri
         LOG_INFO("Data writed succesful! size = "
                  << data->size()
                  << " writed size = "
-                 << writedBytesCount
-                 << " " << Helper::bufferToString(data, 0, 0));
+                 << writedBytesCount);
     }
     else
     {

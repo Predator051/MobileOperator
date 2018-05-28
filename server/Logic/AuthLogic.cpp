@@ -3,6 +3,9 @@
 #include "Config/GlobalParams.h"
 #include "Crypto/CryptoHelper.h"
 #include "db/SessionPostgresInfo.h"
+#include "db/ClientPostgresManager.h"
+#include "db/UserPackagePostgresManager.h"
+#include "db/RatePostgresManager.h"
 
 ResponseCode AuthLogic::createUser(const network::RegisterMessage &authData, network::RegisterMessageResponse* response)
 {
@@ -50,7 +53,18 @@ ResponseCode AuthLogic::createUser(const network::RegisterMessage &authData, net
         }
         else
         {
-            if(response)
+            UserInfo uInfo;
+            AuthPostgresManager::getUserByLogin(authData.login(), uInfo);
+            result = ClientPostgresManager::createUser(uInfo);
+            if(result != ResponseCode::status_success)
+            {
+                if(response)
+                {
+                    response->set_messagetext("Cannot create user! Try again");
+                    response->set_status(false);
+                }
+            }
+            else if(response)
             {
                 response->set_messagetext("Success");
                 response->set_status(true);
@@ -145,6 +159,57 @@ ResponseCode AuthLogic::logout(const network::RequestContext &request)
         auto session = request.session_info();
 
         result = SessionPostgresInfo::updateSessionToNow(session.session_id());
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode AuthLogic::getPackageState(uint64_t user_id, User &user)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        PackageInfo package;
+        result = UserPackagePostgresManager::getPackage(package, user_id);
+        if(result != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to getting package for user " << user_id);
+            break;
+        }
+
+        UserInfo uInfo;
+        result = ClientPostgresManager::getUserInfo(user_id, uInfo);
+        if(result != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to getting user info by " << user_id);
+            break;
+        }
+
+        RateInfo rInfo;
+        uint64_t con_date;
+        uint64_t rId;
+        result = RatePostgresManager::getUserRate(user_id, rId, con_date);
+        rInfo.id = rId;
+        rInfo.connected_date = con_date;
+        if(result != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to getting rate id for user " << user_id);
+            break;
+        }
+
+        result = RatePostgresManager::getRateInfo(rInfo.id, rInfo);
+
+        if(result != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to getting rate info for user " << user_id);
+            break;
+        }
+
+        user.package = package;
+        user.user_info = uInfo;
+        user.rate_info = rInfo;
     }
     while(false);
 

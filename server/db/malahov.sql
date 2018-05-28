@@ -36,8 +36,8 @@ CREATE TABLE rates (
 	count_sms integer NOT NULL,
 	count_sec_into_net integer NOT NULL,
 	count_sec_out_net integer NOT NULL,
-	period integer NOT NULL,
-	cost FLOAT NOT NULL,
+        period integer NOT NULL,
+        cost FLOAT NOT NULL,
 	about TEXT NOT NULL,
 	PRIMARY KEY (id)
 );

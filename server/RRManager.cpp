@@ -73,15 +73,17 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
         case network::MO_LOGOUT:
             responseCode = logOutRR(reqContext);
             break;
-        default:
-            responseCode = ResponseCode::status_unknown_command;
+        case network::MO_USER_PACKAGE_INFO:
+            responseCode = packageInfoRR(reqContext, resContext);
             break;
         }
     }
     while(false);
 
     LOG_INFO("Request [" << reqContext.message_type_()
-             << "] end with status: " << static_cast<int>(responseCode));
+             << "] end with status: "
+             << (responseCode == ResponseCode::status_success ? "SUCCESS":"ERROR")
+             << " " << static_cast<int>(responseCode));
 
     resContext.set_error_code(static_cast<int32_t>(responseCode));
     resContext.set_message_type_(reqContext.message_type_());
@@ -252,6 +254,45 @@ ResponseCode RRManager::logOutRR(const network::RequestContext &requests)
         }
 
         resultStatus = AuthLogic::logout(requests);
+    }
+    while(false);
+
+    return resultStatus;
+}
+
+ResponseCode RRManager::packageInfoRR(const network::RequestContext &requests, network::ResponseContext &response)
+{
+    ResponseCode resultStatus = ResponseCode::status_internal_error;
+
+    do
+    {
+        User user;
+        resultStatus = AuthLogic::getPackageState(requests.session_info().userid(), user);
+
+        if(resultStatus != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to getting user package info!");
+            break;
+        }
+
+        network::UserPackageInfoResponse* upr = new network::UserPackageInfoResponse();
+        upr->set_phone(user.user_info.user_login);
+        upr->set_score(user.user_info.score);
+        upr->set_count_mb(user.package.count_mb);
+        upr->set_count_sec_into_net(user.package.count_sec_into_net);
+        upr->set_count_sec_out_net(user.package.count_sec_out_net);
+        upr->set_count_sms(user.package.count_sms);
+
+        network::UserRateInfo* userRate = new network::UserRateInfo();
+        network::RateInfo* rateInfo = new network::RateInfo();
+
+        user.rate_info.serialize_to_pb(rateInfo);
+        userRate->set_connect_date(user.rate_info.connected_date);
+        userRate->set_allocated_rate_info(rateInfo);
+
+        upr->set_allocated_user_rate(userRate);
+
+        response.set_allocated_package_response(upr);
     }
     while(false);
 

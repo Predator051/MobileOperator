@@ -23,6 +23,8 @@ private:
     ResponseCode authRR(const network::RequestContext& request, network::ResponseContext& response);
     ResponseCode registerRR(const network::RequestContext& requests, network::ResponseContext &response);
     ResponseCode logOutRR(const network::RequestContext& requests);
+    ResponseCode packageInfoRR(const network::RequestContext& requests, network::ResponseContext &response);
+
     std::vector<ClientChannelPtr> sessions_;
 };
 
