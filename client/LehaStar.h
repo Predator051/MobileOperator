@@ -26,6 +26,9 @@ private slots:
     void updateTime();
     void on_testBtn_2_clicked();
     void logout();
+    void readDataFromServer(QString res);
+signals:
+    void readData(QString);
 
 private:
     Ui::LehaStar *ui;

@@ -11,6 +11,7 @@ LehaStar::LehaStar(std::shared_ptr<MessageManager> message_manager, QWidget *par
     QWidget(parent),
     ui(new Ui::LehaStar)
 {
+    qRegisterMetaType<QVector<int>>("QVector<int>");
     ui->setupUi(this);
     if(message_manager)
     {
@@ -19,10 +20,7 @@ LehaStar::LehaStar(std::shared_ptr<MessageManager> message_manager, QWidget *par
         message_manager->setOnConnected(std::bind(&LehaStar::onConnected, this));
     }
 
-    timer_ = new QTimer();
-    timer_->setInterval(1000);
-    connect(timer_, SIGNAL(timeout()), this, SLOT(updateTime()));
-    timer_->start();
+    connect(this, SIGNAL(readData(QString)), this, SLOT(readDataFromServer(QString)));
 }
 
 LehaStar::~LehaStar()
@@ -46,29 +44,7 @@ void LehaStar::onError(ClientError error)
 
 void LehaStar::onRead(const network::ResponseContext & response)
 {
-    LOG_INFO("Response from server: " << response.error_code());
-
-    switch (response.message_type_()) {
-    case network::MO_REGISTER:
-    {
-        network::RegisterMessageResponse regRes = response.register_response();
-        userRegister(regRes);
-        break;
-    }
-    case network::MO_AUTH:
-    {
-        network::AuthMessageResponse authRes = response.auth_response();
-        message_manager_->setSessionInfo(response.session_info());
-        userAuth(authRes, message_manager_->sessionInfo());
-        break;
-    }
-    case network::MO_USER_STATUS:
-    {
-        message_manager_->setSessionInfo(response.session_info());
-        userStatus(message_manager_->sessionInfo());
-        break;
-    }
-    }
+    emit readData(QString::fromStdString(response.SerializeAsString()));
 }
 
 void LehaStar::onConnected()
@@ -119,6 +95,7 @@ void LehaStar::userAuth(const network::AuthMessageResponse &authMessage, const n
             clientView_ = std::make_shared<ClientView>();
             connect(clientView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
             clientView_->setAttribute(Qt::WA_DeleteOnClose, true);
+            clientView_->setMessage_manager(message_manager_);
             clientView_->show();
             break;
         case 1:
@@ -146,6 +123,7 @@ void LehaStar::userStatus(const network::SessionInfo &sessionInfo)
     case 0:
         clientView_ = std::make_shared<ClientView>();
         connect(clientView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
+        clientView_->setMessage_manager(message_manager_);
         clientView_->setAttribute(Qt::WA_DeleteOnClose, true);
         clientView_->show();
         break;
@@ -199,4 +177,34 @@ void LehaStar::logout()
     LOG_INFO("Close event!");
     //message_manager_->logout();
     //message_manager_->sessionInfo().Clear();
+}
+
+void LehaStar::readDataFromServer(QString res)
+{
+    std::string str = res.toStdString();
+    network::ResponseContext response;
+    response.ParseFromString(str);
+    LOG_INFO("Response from server: " << response.error_code());
+
+    switch (response.message_type_()) {
+    case network::MO_REGISTER:
+    {
+        network::RegisterMessageResponse regRes = response.register_response();
+        userRegister(regRes);
+        break;
+    }
+    case network::MO_AUTH:
+    {
+        network::AuthMessageResponse authRes = response.auth_response();
+        message_manager_->setSessionInfo(response.session_info());
+        userAuth(authRes, message_manager_->sessionInfo());
+        break;
+    }
+    case network::MO_USER_STATUS:
+    {
+        message_manager_->setSessionInfo(response.session_info());
+        userStatus(message_manager_->sessionInfo());
+        break;
+    }
+    }
 }

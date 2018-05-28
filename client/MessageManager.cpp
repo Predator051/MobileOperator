@@ -137,6 +137,13 @@ bool MessageManager::userStatus()
     execute(context);
 }
 
+bool MessageManager::userPackage()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_USER_PACKAGE_INFO);
+    execute(context);
+}
+
 network::SessionInfo& MessageManager::sessionInfo()
 {
     return sessionInfo_;

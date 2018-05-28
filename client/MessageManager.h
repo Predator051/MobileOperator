@@ -20,6 +20,7 @@ public:
     bool createUser(const std::string& login, const std::string& password);
     bool logout();
     bool userStatus();
+    bool userPackage();
     network::SessionInfo &sessionInfo();
     void setSessionInfo(const network::SessionInfo &sessionInfo);
 
