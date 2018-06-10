@@ -20,9 +20,18 @@ public:
     bool createUser(const std::string& login, const std::string& password);
     bool logout();
     bool userStatus();
-    bool userPackage();
+    bool userPackage(uint64_t user_id);
+    bool userStory(uint64_t user_id);
+    bool allRates();
+    bool allService();
+    bool allUsers();
+    bool ratePayment(uint64_t rate_id);
+    bool servicePayment(uint64_t rate_id);
     network::SessionInfo &sessionInfo();
     void setSessionInfo(const network::SessionInfo &sessionInfo);
+    bool adminUpdateUserPackage(const network::AdminUpdateUserPackage& auup);
+    bool adminRateChange(uint64_t rate_id, uint64_t user_id);
+    bool adminServiceChange(uint64_t service_id, uint64_t user_id);
 
 private:
 

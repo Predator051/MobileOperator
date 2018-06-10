@@ -25,7 +25,7 @@ private slots:
     void on_testBtn_clicked();
     void updateTime();
     void on_testBtn_2_clicked();
-    void logout();
+    void logout(ExitAction act);
     void readDataFromServer(QString res);
 signals:
     void readData(QString);

@@ -38,7 +38,10 @@ SOURCES += main.cpp \
     Crypto/CryptoHelper.cpp \
     ClientView.cpp \
     AdminView.cpp \
-    Cache/CacheManager.cpp
+    Cache/CacheManager.cpp \
+    RateServiceChangeView.cpp \
+    View/ListItem.cpp \
+    AdminRateService.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -55,7 +58,10 @@ HEADERS += \
     Crypto/CryptoHelper.h \
     ClientView.h \
     AdminView.h \
-    Cache/CacheManager.h
+    Cache/CacheManager.h \
+    RateServiceChangeView.h \
+    View/ListItem.h \
+    AdminRateService.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)
@@ -74,4 +80,6 @@ DISTFILES += \
 FORMS += \
     LehaStar.ui \
     clientview.ui \
-    adminview.ui
+    adminview.ui \
+    rateservicechangeview.ui \
+    AdminRateService.ui

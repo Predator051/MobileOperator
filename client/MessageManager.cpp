@@ -137,10 +137,71 @@ bool MessageManager::userStatus()
     execute(context);
 }
 
-bool MessageManager::userPackage()
+bool MessageManager::userPackage(uint64_t user_id)
 {
     network::RequestContext context;
+
+    network::UserPackageInfoMessage* pack = new network::UserPackageInfoMessage();
+    pack->set_user_id(user_id);
+    context.set_allocated_package_info(pack);
+    LOG_INFO("User id for package info " << user_id);
     context.set_message_type_(network::message_type::MO_USER_PACKAGE_INFO);
+    execute(context);
+}
+
+bool MessageManager::userStory(uint64_t user_id)
+{
+    network::RequestContext context;
+    network::UserStoryMessage* pack = new network::UserStoryMessage();
+    pack->set_user_id(user_id);
+    context.set_allocated_user_story(pack);
+    LOG_INFO("User id for user story" << user_id);
+    context.set_message_type_(network::message_type::MO_USER_STORY);
+    execute(context);
+}
+
+bool MessageManager::allRates()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_ALL_RATES);
+    execute(context);
+}
+
+bool MessageManager::allService()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_ALL_SERVICES);
+    execute(context);
+}
+
+bool MessageManager::allUsers()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_ALL_USERS);
+    execute(context);
+}
+
+bool MessageManager::ratePayment(uint64_t rate_id)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_RATE_PAYMENT);
+
+    network::RatePaymentMessage* authMess = new network::RatePaymentMessage();
+    authMess->set_rate_id(rate_id);
+
+    context.set_allocated_rate_payment(authMess);
+    execute(context);
+}
+
+bool MessageManager::servicePayment(uint64_t rate_id)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_SERVICE_PAYMENT);
+
+    network::ServicePaymentMessage* authMess = new network::ServicePaymentMessage();
+    authMess->set_rate_id(rate_id);
+
+    context.set_allocated_service_payment(authMess);
     execute(context);
 }
 
@@ -152,4 +213,41 @@ network::SessionInfo& MessageManager::sessionInfo()
 void MessageManager::setSessionInfo(const network::SessionInfo &sessionInfo)
 {
     sessionInfo_ = sessionInfo;
+}
+
+bool MessageManager::adminUpdateUserPackage(const network::AdminUpdateUserPackage &auup)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_ADMIN_UPDATE_USER_PACKAGE);
+
+    network::AdminUpdateUserPackage* authMess = new network::AdminUpdateUserPackage(auup);
+
+    context.set_allocated_admin_user_package(authMess);
+    execute(context);
+}
+
+bool MessageManager::adminRateChange(uint64_t rate_id, uint64_t user_id)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_ADMIN_USER_RATE_CHANGE);
+
+    network::AdminUserRateChange* authMess = new network::AdminUserRateChange();
+    authMess->set_rate_id(rate_id);
+     authMess->set_user_id(user_id);
+
+    context.set_allocated_admin_user_rate_change(authMess);
+    execute(context);
+}
+
+bool MessageManager::adminServiceChange(uint64_t service_id, uint64_t user_id)
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_ADMIN_USER_SERVICE_CHANGE);
+
+    network::AdminUserServiceChange* authMess = new network::AdminUserServiceChange();
+    authMess->set_service_id(service_id);
+    authMess->set_user_id(user_id);
+
+    context.set_allocated_admin_user_service_change(authMess);
+    execute(context);
 }

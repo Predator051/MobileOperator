@@ -93,19 +93,23 @@ void LehaStar::userAuth(const network::AuthMessageResponse &authMessage, const n
         switch (sessionInfo.role()) {
         case 0:
             clientView_ = std::make_shared<ClientView>();
-            connect(clientView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
-            clientView_->setAttribute(Qt::WA_DeleteOnClose, true);
+            connect(clientView_.get(), SIGNAL(onClose(ExitAction)), this, SLOT(logout(ExitAction)));
             clientView_->setMessage_manager(message_manager_);
             clientView_->show();
             break;
         case 1:
             adminView_ = std::make_shared<AdminView>();
-            connect(adminView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
-            adminView_->setAttribute(Qt::WA_DeleteOnClose, true);
+            connect(adminView_.get(), SIGNAL(onClose(ExitAction)), this, SLOT(logout(ExitAction)));
+            adminView_->setMessage_manager(message_manager_);
             adminView_->show();
             break;
         default:
             break;
+        }
+
+        if(sessionInfo.role() > -1)
+        {
+            this->hide();
         }
     }
 }
@@ -122,19 +126,23 @@ void LehaStar::userStatus(const network::SessionInfo &sessionInfo)
     switch (sessionInfo.role()) {
     case 0:
         clientView_ = std::make_shared<ClientView>();
-        connect(clientView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
+        connect(clientView_.get(), SIGNAL(onClose(ExitAction)), this, SLOT(logout(ExitAction)));
         clientView_->setMessage_manager(message_manager_);
-        clientView_->setAttribute(Qt::WA_DeleteOnClose, true);
         clientView_->show();
         break;
     case 1:
         adminView_ = std::make_shared<AdminView>();
-        connect(adminView_.get(), SIGNAL(onClose()), this, SLOT(logout()));
-        adminView_->setAttribute(Qt::WA_DeleteOnClose, true);
+        connect(adminView_.get(), SIGNAL(onClose(ExitAction)), this, SLOT(logout(ExitAction)));
+        adminView_->setMessage_manager(message_manager_);
         adminView_->show();
         break;
     default:
         break;
+    }
+
+    if(sessionInfo.role() > -1)
+    {
+        this->hide();
     }
 }
 
@@ -172,9 +180,19 @@ void LehaStar::on_testBtn_2_clicked()
     }
 }
 
-void LehaStar::logout()
+void LehaStar::logout(ExitAction act)
 {
     LOG_INFO("Close event!");
+    if(act == ExitAction::LOGOUT)
+    {
+        this->show();
+        message_manager_->setOnReadCB(std::bind(&LehaStar::onRead, this, std::placeholders::_1));
+        CacheManager::instance("").saveSession("");
+    }
+    else
+    {
+        this->close();
+    }
     //message_manager_->logout();
     //message_manager_->sessionInfo().Clear();
 }

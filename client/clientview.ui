@@ -103,7 +103,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <widget class="QListWidget" name="listWidget">
+    <widget class="QTableWidget" name="twHistory">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -112,6 +112,35 @@
        <height>211</height>
       </rect>
      </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="showGrid">
+      <bool>true</bool>
+     </property>
+     <property name="gridStyle">
+      <enum>Qt::DashLine</enum>
+     </property>
+     <property name="rowCount">
+      <number>1</number>
+     </property>
+     <property name="columnCount">
+      <number>2</number>
+     </property>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <row/>
+     <column>
+      <property name="text">
+       <string>Date</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Content</string>
+      </property>
+     </column>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
@@ -201,8 +230,9 @@
    </widget>
    <widget class="QMenu" name="menuRATES">
     <property name="title">
-     <string>RATES</string>
+     <string>CHANGE</string>
     </property>
+    <addaction name="actionRATES_SERVICE"/>
    </widget>
    <addaction name="menuCLIENT"/>
    <addaction name="menuRATES"/>
@@ -216,6 +246,11 @@
   <action name="actionEXIT_2">
    <property name="text">
     <string>EXIT</string>
+   </property>
+  </action>
+  <action name="actionRATES_SERVICE">
+   <property name="text">
+    <string>RATES/SERVICE</string>
    </property>
   </action>
  </widget>

@@ -21,5 +21,12 @@ enum class ClientError {
     status_cannot_connect
 };
 
+
+enum class ExitAction
+{
+    EXIT = 0,
+    LOGOUT = 1
+};
+
 #endif // DEFINE
 
