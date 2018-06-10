@@ -8,7 +8,7 @@ ResponseCode SessionPostgresInfo::createSession(const uint64_t &user_id, const s
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -49,7 +49,7 @@ ResponseCode SessionPostgresInfo::removeSession(const std::string &session_id)
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -90,7 +90,7 @@ ResponseCode SessionPostgresInfo::removeSession(const uint64_t &user_id)
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -131,7 +131,7 @@ ResponseCode SessionPostgresInfo::isSessionExist(const uint64_t &user_id, bool& 
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -181,7 +181,7 @@ ResponseCode SessionPostgresInfo::getSession(const uint64_t &user_id, std::strin
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -230,7 +230,7 @@ ResponseCode SessionPostgresInfo::getUserBySession(const std::string &session_id
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -279,7 +279,7 @@ ResponseCode SessionPostgresInfo::updateSessionToNow(const std::string &session_
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -320,7 +320,7 @@ ResponseCode SessionPostgresInfo::checkSession(const std::string &session_id, bo
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -366,7 +366,7 @@ ResponseCode SessionPostgresInfo::updateSession(const std::string &session_id)
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {

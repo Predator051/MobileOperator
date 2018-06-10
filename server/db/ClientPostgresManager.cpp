@@ -1,6 +1,6 @@
 #include "ClientPostgresManager.h"
 
-ResponseCode ClientPostgresManager::getUserInfo(uint64_t id, UserInfo &uInfo)
+ResponseCode ClientPostgresManager::getUserInfo(uint64_t id, UserInfo &uInfo, PostgresRole role)
 {
     ResponseCode result = ResponseCode::status_internal_error;
 
@@ -8,7 +8,7 @@ ResponseCode ClientPostgresManager::getUserInfo(uint64_t id, UserInfo &uInfo)
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getClientConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(role);
 
             if(!connection)
             {
@@ -46,7 +46,7 @@ ResponseCode ClientPostgresManager::getUserInfo(uint64_t id, UserInfo &uInfo)
     return result;
 }
 
-ResponseCode ClientPostgresManager::createUser(const UserInfo &uInfo)
+ResponseCode ClientPostgresManager::createUser(const UserInfo &uInfo, PostgresRole role)
 {
     ResponseCode result = ResponseCode::status_internal_error;
 
@@ -54,7 +54,7 @@ ResponseCode ClientPostgresManager::createUser(const UserInfo &uInfo)
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getClientConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(role);
 
             if(!connection)
             {
@@ -79,6 +79,93 @@ ResponseCode ClientPostgresManager::createUser(const UserInfo &uInfo)
         catch(const std::exception& e)
         {
             LOG_ERR("Failure: trying to query createUser err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode ClientPostgresManager::updateUser(UserInfo &info, PostgresRole role)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getDBConnection(role);
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("updateUser"))
+            {
+                connection->prepare("updateUser",
+                                   "UPDATE users SET score = $1 "
+                                   " WHERE id = $2;");
+            }
+
+            pqxx::work work(*connection, "updateUser");
+
+            work.prepared("updateUser")(info.score)(info.user_id).exec();
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query createUser err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode ClientPostgresManager::getAllUsers(std::vector<PhoneUserId> &users, PostgresRole role)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getDBConnection(role);
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getAllUsers"))
+            {
+                connection->prepare("getAllUsers",
+                                   "SELECT id, phone FROM users;");
+            }
+
+            pqxx::work work(*connection, "getAllUsers");
+
+            pqxx::result query_result = work.prepared("getAllUsers").exec();
+
+            for(const pqxx::tuple& value: query_result)
+            {
+                users.push_back(std::make_pair(value["phone"].as<std::string>()
+                                                , value["id"].as<uint64_t>()));
+            }
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query getAllUsers err: " << e.what());
             break;
         }
     }

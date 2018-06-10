@@ -28,4 +28,5 @@ void RateInfo::serialize_to_pb(network::RateInfo *rateInfo)
     rateInfo->set_period(period);
     rateInfo->set_about(about);
     rateInfo->set_cost(cost);
+    rateInfo->set_id(id);
 }

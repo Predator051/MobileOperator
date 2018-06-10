@@ -18,7 +18,7 @@ void UserInfo::parse_from_pg(const pqxx::tuple &value)
 void UserInfo::parse_from_mo_db(const pqxx::tuple &value)
 {
     user_id = value["id"].as<int64_t>();
-    score = value["id"].as<float>();
+    score = value["score"].as<float>();
     user_login = value["phone"].as<std::string>();
 }
 

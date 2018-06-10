@@ -3,6 +3,7 @@
 
 #include "Session.h"
 #include "Types/UserInfo.h"
+#include <mutex>
 
 class ClientChannel : public Session
 {
@@ -33,7 +34,7 @@ private:
 
     UserInfo userInfo;
     std::string sessionId;
-
+    std::mutex mutex_;
 };
 
 typedef std::shared_ptr<ClientChannel> ClientChannelPtr;

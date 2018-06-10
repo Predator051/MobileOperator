@@ -8,7 +8,7 @@ ResponseCode AuthPostgresManager::isUserExist(const std::string &login, bool &ex
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -51,7 +51,7 @@ ResponseCode AuthPostgresManager::createUser(const std::string &login, const std
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -93,7 +93,7 @@ ResponseCode AuthPostgresManager::getUserByLogin(const std::string &login, UserI
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {
@@ -139,7 +139,7 @@ ResponseCode AuthPostgresManager::getUserByUserId(uint64_t user_id, UserInfo &us
     {
         try
         {
-            db_connection_ptr connection = DBHelper::getAuthConnection();
+            db_connection_ptr connection = DBHelper::getDBConnection(PostgresRole::AUTH);
 
             if(!connection)
             {

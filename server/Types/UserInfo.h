@@ -4,6 +4,7 @@
 #include <string>
 #include <pqxx/pqxx>
 #include <Types/RateInfo.h>
+#include <Protobuf/Message.pb.h>
 
 struct PackageInfo
 {
@@ -11,6 +12,7 @@ struct PackageInfo
     uint32_t count_sec_out_net;
     uint32_t count_sms;
     uint32_t count_mb;
+    float score;
 
     void parse_from_pg(const pqxx::tuple& value);
 };
@@ -31,11 +33,22 @@ public:
     void parse_from_mo_db(const pqxx::tuple& value);
 };
 
+using ServiceInfoDate = std::pair<network::ServiceInfo, uint64_t>;
+
 struct User
 {
     PackageInfo package;
     UserInfo user_info;
     RateInfo rate_info;
+    std::vector<ServiceInfoDate> services;
+};
+
+struct UserStory
+{
+    std::vector<network::UserConnectedRate> rates;
+    std::vector<network::UserConnectedService> services;
+    std::vector<network::SmsPayment> sms;
+    std::vector<network::OutboundCallPayment> calls;
 };
 
 #endif // USERINFO_H

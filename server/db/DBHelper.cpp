@@ -5,6 +5,21 @@
 #include <mutex>
 #include <algorithm>
 
+db_connection_ptr DBHelper::getDBConnection(PostgresRole role)
+{
+    switch (role) {
+    case PostgresRole::ADMIN:
+        return getAdminConnection();
+        break;
+    case PostgresRole::AUTH:
+        return getAuthConnection();
+        break;
+    case PostgresRole::CLIENT:
+        return getClientConnection();
+        break;
+    }
+}
+
 db_connection_ptr DBHelper::getClientConnection()
 {
     postgres_role client = GlobalsParams::getClientRole();

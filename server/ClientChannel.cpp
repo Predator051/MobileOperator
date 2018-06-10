@@ -71,7 +71,6 @@ void ClientChannel::execute(ByteBufferPtr data)
 
 void ClientChannel::execute(const std::string &data)
 {
-    LOG_INFO(data);
     ByteBufferPtr buff = std::make_shared<ByteBuffer>(data.begin(), data.end());
     execute(buff);
 }

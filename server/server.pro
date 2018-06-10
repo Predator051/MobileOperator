@@ -42,7 +42,10 @@ SOURCES += main.cpp \
     db/ClientPostgresManager.cpp \
     db/UserPackagePostgresManager.cpp \
     Types/RateInfo.cpp \
-    db/RatePostgresManager.cpp
+    db/RatePostgresManager.cpp \
+    db/ServiceManagerPostgres.cpp \
+    ../common/ProtoHelper.cpp \
+    db/AdminPackagePostgresManager.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -65,7 +68,10 @@ HEADERS += \
     db/ClientPostgresManager.h \
     db/UserPackagePostgresManager.h \
     Types/RateInfo.h \
-    db/RatePostgresManager.h
+    db/RatePostgresManager.h \
+    db/ServiceManagerPostgres.h \
+    ../common/ProtoHelper.h \
+    db/AdminPackagePostgresManager.h
 
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_SERVER/debugs)
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_SERVER/debugs)

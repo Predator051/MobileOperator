@@ -24,6 +24,15 @@ private:
     ResponseCode registerRR(const network::RequestContext& requests, network::ResponseContext &response);
     ResponseCode logOutRR(const network::RequestContext& requests);
     ResponseCode packageInfoRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode userStoryRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode allServicesRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode allRatesRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode ratePaymentRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode servicePaymentRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode allUsersRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode updateUserPackage(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode adminRateChangeRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode adminServiceChangeRR(const network::RequestContext& requests, network::ResponseContext &response);
 
     std::vector<ClientChannelPtr> sessions_;
 };
