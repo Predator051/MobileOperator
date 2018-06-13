@@ -34,6 +34,7 @@ public:
     void setMessage_manager(const std::shared_ptr<MessageManager> &message_manager);
     void onRead(const network::ResponseContext &response);
 
+    static network::RateStatisticsResponse rateStatisticResponse;
 signals:
     void onClose(ExitAction);
     void onReadData(std::string);
@@ -46,6 +47,10 @@ private:
     void userStoryInfo(const network::UserPaidStoryResponse& res);
 
     std::shared_ptr<AdminRateService> rsChangeView;
+
+    void displayRateStatistics();
+    void rateStatistics(network::RateStatisticsResponse& response);
+    void serviceStatistics(network::ServiceStatisticsResponse& response);
     // QWidget interface
 protected:
     void closeEvent(QCloseEvent *event);
@@ -55,6 +60,11 @@ private slots:
     void on_lwUsers_itemClicked(QListWidgetItem *item);
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
+    void on_tabWidget_tabBarClicked(int index);
+    void on_lwRatesStats_itemClicked(QListWidgetItem *item);
+    void on_lwServiceStats_itemClicked(QListWidgetItem *item);
+    void on_actionLOGOUT_triggered();
+    void on_actionEXIT_triggered();
 };
 
 #endif // ADMINVIEW_H

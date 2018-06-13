@@ -32,6 +32,8 @@ public:
     bool adminUpdateUserPackage(const network::AdminUpdateUserPackage& auup);
     bool adminRateChange(uint64_t rate_id, uint64_t user_id);
     bool adminServiceChange(uint64_t service_id, uint64_t user_id);
+    bool rateStatistics();
+    bool serviceStatistics();
 
 private:
 

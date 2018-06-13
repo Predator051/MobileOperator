@@ -193,8 +193,6 @@ void LehaStar::logout(ExitAction act)
     {
         this->close();
     }
-    //message_manager_->logout();
-    //message_manager_->sessionInfo().Clear();
 }
 
 void LehaStar::readDataFromServer(QString res)

@@ -251,3 +251,17 @@ bool MessageManager::adminServiceChange(uint64_t service_id, uint64_t user_id)
     context.set_allocated_admin_user_service_change(authMess);
     execute(context);
 }
+
+bool MessageManager::rateStatistics()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_RATE_STATISTICS);
+    execute(context);
+}
+
+bool MessageManager::serviceStatistics()
+{
+    network::RequestContext context;
+    context.set_message_type_(network::message_type::MO_SERVICE_STATISTICS);
+    execute(context);
+}

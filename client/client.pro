@@ -1,4 +1,5 @@
 QT += gui
+QT += printsupport
 QT += widgets
 
 TARGET = client
@@ -13,7 +14,8 @@ CONFIG(release, debug|release): DESTDIR = $$PWD/../build/MOBILE_CLIENT/release
 CONFIG(debug, debug|release): DESTDIR = $$PWD/../build/MOBILE_CLIENT/debugs
 
 INCLUDEPATH += $$PWD/../common \
-               $$PWD/Config
+               $$PWD/Config \
+               $$PWD/View/qcustomplot/
 
 LIBS += -lcrypto \
         -lssl \
@@ -41,7 +43,8 @@ SOURCES += main.cpp \
     Cache/CacheManager.cpp \
     RateServiceChangeView.cpp \
     View/ListItem.cpp \
-    AdminRateService.cpp
+    AdminRateService.cpp \
+    View/qcustomplot/qcustomplot.cpp
 
 HEADERS += \
     ../common/Worker.h \
@@ -61,7 +64,8 @@ HEADERS += \
     Cache/CacheManager.h \
     RateServiceChangeView.h \
     View/ListItem.h \
-    AdminRateService.h
+    AdminRateService.h \
+    View/qcustomplot/qcustomplot.h
 
 system(cp $$PWD/SSL/* $PWD/../build/MOBILE_CLIENT/debugs)
 system(cp $$PWD/Config/config.cfg $PWD/../build/MOBILE_CLIENT/debugs)

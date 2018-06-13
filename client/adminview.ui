@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -207,13 +207,23 @@
      <attribute name="title">
       <string>Rate statistics</string>
      </attribute>
-     <widget class="QTableView" name="tableView_2">
+     <widget class="QCustomPlot" name="rateCountPlot" native="true">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>381</width>
-        <height>561</height>
+        <x>0</x>
+        <y>40</y>
+        <width>591</width>
+        <height>451</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="lwRatesStats">
+      <property name="geometry">
+       <rect>
+        <x>600</x>
+        <y>40</y>
+        <width>341</width>
+        <height>451</height>
        </rect>
       </property>
      </widget>
@@ -222,6 +232,26 @@
      <attribute name="title">
       <string>Service statistics</string>
      </attribute>
+     <widget class="QCustomPlot" name="serviceCountPlot" native="true">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>591</width>
+        <height>451</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="lwServiceStats">
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>20</y>
+        <width>341</width>
+        <height>451</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -238,11 +268,31 @@
     <property name="title">
      <string>ADMIN</string>
     </property>
+    <addaction name="actionLOGOUT"/>
+    <addaction name="actionEXIT"/>
    </widget>
    <addaction name="menuADMIN"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLOGOUT">
+   <property name="text">
+    <string>LOGOUT</string>
+   </property>
+  </action>
+  <action name="actionEXIT">
+   <property name="text">
+    <string>EXIT</string>
+   </property>
+  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

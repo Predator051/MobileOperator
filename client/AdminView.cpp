@@ -4,6 +4,10 @@
 #include "Helper.h"
 #include <thread>
 #include <chrono>
+#include <QVector>
+#include <View/ListItem.h>
+
+network::RateStatisticsResponse AdminView::rateStatisticResponse;
 
 AdminView::AdminView(QWidget *parent) :
     QMainWindow(parent),
@@ -13,6 +17,7 @@ AdminView::AdminView(QWidget *parent) :
 
     ui->setupUi(this);
     connect(this, SIGNAL(onReadData(std::string)), this, SLOT(readData(std::string)));
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 AdminView::~AdminView()
@@ -166,6 +171,97 @@ void AdminView::userStoryInfo(const network::UserPaidStoryResponse &res)
     ui->twHistory->resizeRowsToContents();
 }
 
+void AdminView::displayRateStatistics()
+{
+        double a = 0;
+        double b =  100;
+        double h = 1;
+
+        int N=(b-a)/h + 2; //Вычисляем количество точек, которые будем отрисовывать
+        QVector<double> x(N), y(N); //Массивы координат точек
+
+        //Вычисляем наши данные
+        int i=0;
+        for (double X=a; X<=b; X+=h)//Пробегаем по всем точкам
+        {
+            x[i] = X;
+            y[i] = X;//Формула нашей функции
+            i++;
+        }
+
+        ui->rateCountPlot->clearGraphs();//Если нужно, но очищаем все графики
+        //Добавляем один график в widget
+        ui->rateCountPlot->addGraph();
+        //Говорим, что отрисовать нужно график по нашим двум массивам x и y
+        ui->rateCountPlot->graph(0)->setData(x, y);
+
+        //Подписываем оси Ox и Oy
+        ui->rateCountPlot->xAxis->setLabel("x");
+        ui->rateCountPlot->yAxis->setLabel("y");
+
+        //Установим область, которая будет показываться на графике
+        ui->rateCountPlot->xAxis->setRange(a, b);//Для оси Ox
+
+        //Для показа границ по оси Oy сложнее, так как надо по правильному
+        //вычислить минимальное и максимальное значение в векторах
+        double minY = y[0], maxY = y[0];
+        for (int i=1; i<N; i++)
+        {
+            if (y[i]<minY) minY = y[i];
+            if (y[i]>maxY) maxY = y[i];
+        }
+        ui->rateCountPlot->yAxis->setRange(minY, maxY);//Для оси Oy
+
+        //И перерисуем график на нашем widget
+        ui->rateCountPlot->replot();
+}
+
+void AdminView::rateStatistics(network::RateStatisticsResponse &response)
+{
+    ui->lwRatesStats->clear();
+    if(response.rate_month_size() > 0)
+    {
+        std::map<uint64_t, ListItemRate*> maps;
+        for(int i = 0; i<response.rate_month_size(); i++)
+        {
+            if(maps.find(response.rate_month(i).rate_info().id()) == maps.end())
+            {
+                ListItemRate* lir = new ListItemRate(QString::fromStdString(response.rate_month(i).rate_info().about()));
+                maps[response.rate_month(i).rate_info().id()] = lir;
+                lir->statistics.push_back(response.rate_month(i));
+                ui->lwRatesStats->addItem(lir);
+            }
+            else
+            {
+                maps[response.rate_month(i).rate_info().id()]->statistics.push_back(response.rate_month(i));
+            }
+        }
+    }
+}
+
+void AdminView::serviceStatistics(network::ServiceStatisticsResponse &response)
+{
+    ui->lwServiceStats->clear();
+    if(response.service_month_size() > 0)
+    {
+        std::map<uint64_t, ListItemService*> maps;
+        for(int i = 0; i<response.service_month_size(); i++)
+        {
+            if(maps.find(response.service_month(i).service_info().id()) == maps.end())
+            {
+                ListItemService* lir = new ListItemService(QString::fromStdString(response.service_month(i).service_info().name()));
+                maps[response.service_month(i).service_info().id()] = lir;
+                lir->statistics.push_back(response.service_month(i));
+                ui->lwServiceStats->addItem(lir);
+            }
+            else
+            {
+                maps[response.service_month(i).service_info().id()]->statistics.push_back(response.service_month(i));
+            }
+        }
+    }
+}
+
 void AdminView::closeEvent(QCloseEvent *event)
 {
     emit onClose(ExitAction::EXIT);
@@ -195,6 +291,18 @@ void AdminView::readData(std::string str)
     {
         network::UserPaidStoryResponse res = response.story_response();
         userStoryInfo(res);
+        break;
+    }
+    case network::MO_RATE_STATISTICS:
+    {
+        network::RateStatisticsResponse res = response.rate_statistics();
+        rateStatistics(res);
+        break;
+    }
+    case network::MO_SERVICE_STATISTICS:
+    {
+        network::ServiceStatisticsResponse res = response.service_statistics();
+        serviceStatistics(res);
         break;
     }
     }
@@ -234,4 +342,129 @@ void AdminView::on_pushButton_2_clicked()
     rsChangeView->show();
 
     this->setEnabled(false);
+}
+
+void AdminView::on_tabWidget_tabBarClicked(int index)
+{
+    LOG_INFO(index);
+    switch (index) {
+
+    case 1:
+    {
+        message_manager_->rateStatistics();
+        break;
+    }
+    case 2:
+    {
+        message_manager_->serviceStatistics();
+        break;
+    }
+    }
+}
+
+void AdminView::on_lwRatesStats_itemClicked(QListWidgetItem *item)
+{
+    ListItemRate* lir = static_cast<ListItemRate*>(item);
+
+    double a = 0;
+    double b =  100;
+    double h = 1;
+
+    int N=lir->statistics.size(); //Вычисляем количество точек, которые будем отрисовывать
+    QVector<double> x(12), y(12); //Массивы координат точек
+    //Вычисляем наши данные
+    int i=0;
+    for(int month = 0; month < 12; month++)
+    {
+        x[i] = month;
+
+        for(network::RateStatisticsResponse_MonthCount rsrmc: lir->statistics)
+        {
+            if(rsrmc.month() == month)
+            {
+                y[i] = rsrmc.count_rate();
+            }
+        }
+
+        i++;
+    }
+
+    ui->rateCountPlot->clearGraphs();
+    ui->rateCountPlot->addGraph();
+    ui->rateCountPlot->graph(0)->setData(x, y);
+
+    ui->rateCountPlot->xAxis->setLabel("month");
+    ui->rateCountPlot->yAxis->setLabel("count usage");
+
+    double minY = y[0], maxY = y[0];
+    for (int i=1; i<N; i++)
+    {
+        if (y[i]>maxY) maxY = y[i];
+    }
+
+    //Установим область, которая будет показываться на графике
+    ui->rateCountPlot->xAxis->setRange(0, 12);//Для оси Ox
+    ui->rateCountPlot->yAxis->setRange(0, 10);//Для оси Oy
+
+    //И перерисуем график на нашем widget
+    ui->rateCountPlot->replot();
+}
+
+void AdminView::on_lwServiceStats_itemClicked(QListWidgetItem *item)
+{
+    ListItemService* lir = static_cast<ListItemService*>(item);
+
+    double a = 0;
+    double b =  100;
+    double h = 1;
+
+    int N=lir->statistics.size(); //Вычисляем количество точек, которые будем отрисовывать
+    QVector<double> x(12), y(12); //Массивы координат точек
+    //Вычисляем наши данные
+    int i=0;
+    for(int month = 1; month < 12; month++)
+    {
+        x[i] = month;
+
+        for(network::ServiceStatisticsResponse_MonthCount rsrmc: lir->statistics)
+        {
+            if(rsrmc.month() == month)
+            {
+                y[i] = rsrmc.count_service();
+            }
+        }
+
+        i++;
+    }
+
+    ui->serviceCountPlot->clearGraphs();
+    ui->serviceCountPlot->addGraph();
+    ui->serviceCountPlot->graph(0)->setData(x, y);
+
+    ui->serviceCountPlot->xAxis->setLabel("month");
+    ui->serviceCountPlot->yAxis->setLabel("count usage");
+
+    double minY = y[0], maxY = y[0];
+    for (int i=1; i<N; i++)
+    {
+        if (y[i]>maxY) maxY = y[i];
+    }
+
+    //Установим область, которая будет показываться на графике
+    ui->serviceCountPlot->xAxis->setRange(0, 12);//Для оси Ox
+    ui->serviceCountPlot->yAxis->setRange(0, 10);//Для оси Oy
+
+    //И перерисуем график на нашем widget
+    ui->serviceCountPlot->replot();
+}
+
+void AdminView::on_actionLOGOUT_triggered()
+{
+    emit onClose(ExitAction::LOGOUT);
+    this->hide();
+}
+
+void AdminView::on_actionEXIT_triggered()
+{
+    this->close();
 }
