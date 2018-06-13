@@ -33,6 +33,8 @@ private:
     ResponseCode updateUserPackage(const network::RequestContext& requests, network::ResponseContext &response);
     ResponseCode adminRateChangeRR(const network::RequestContext& requests, network::ResponseContext &response);
     ResponseCode adminServiceChangeRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode adminRateStatisticsRR(const network::RequestContext& requests, network::ResponseContext &response);
+    ResponseCode adminServiceStatisticsRR(const network::RequestContext& requests, network::ResponseContext &response);
 
     std::vector<ClientChannelPtr> sessions_;
 };

@@ -245,3 +245,68 @@ ResponseCode RatePostgresManager::createUserRate(uint64_t user_id, uint64_t rate
 
     return result;
 }
+
+ResponseCode RatePostgresManager::getRateStatistics(std::vector<RateStatistics> &stat, PostgresRole role)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getDBConnection(role);
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getRateStatistics"))
+            {
+                connection->prepare("getRateStatistics",
+                                   "SELECT COUNT(rate_id), date_part('month', date) as month, rate_id FROM user_connected_rate "
+                                   "WHERE date_part('year', date) = date_part('year', NOW()) "
+                                   "GROUP BY date_part('month', date), rate_id; ");
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getRateInfo"))
+            {
+                connection->prepare("getRateInfo",
+                                   "SELECT id, into_net_price, out_net_price, "
+                                   "sms_price, count_mb, count_sms, count_sec_into_net, "
+                                   "count_sec_out_net, period, about, cost "
+                                   "FROM rates WHERE id = $1;");
+            }
+
+            pqxx::work work(*connection, "getRateStatistics");
+
+            pqxx::result res = work.prepared("getRateStatistics").exec();
+
+            for(const pqxx::tuple& value: res)
+            {
+                RateStatistics rStat;
+                rStat.count = value["count"].as<uint64_t>();
+                rStat.month_num = value["month"].as<uint32_t>();
+                uint64_t id = value["rate_id"].as<uint64_t>();
+
+                pqxx::result resRate = work.prepared("getRateInfo")(id).exec();
+
+                rStat.rInfo.parse_from_pg(resRate[0]);
+
+                stat.push_back(rStat);
+            }
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query getRateStatistics err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}

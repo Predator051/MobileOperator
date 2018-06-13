@@ -21,6 +21,8 @@ public:
     static ResponseCode adminUpdateUserPackage(const network::AdminUpdateUserPackage& auup, network::AdminUpdateUserPackageResponse& res);
     static ResponseCode adminUserRateChange(const network::AdminUserRateChange& auup, network::AdminUserRateChangeResponse& res);
     static ResponseCode adminUserServiceChange(const network::AdminUserServiceChange& auup, network::AdminUserServiceChangeResponse& res);
+    static ResponseCode rateStatistics(std::vector<network::RateStatisticsResponse_MonthCount> &res, PostgresRole role);
+    static ResponseCode servicetatistics(std::vector<network::ServiceStatisticsResponse_MonthCount> &res, PostgresRole role);
 
 
 };

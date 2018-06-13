@@ -7,6 +7,13 @@
 
 using RateDate = std::pair<uint64_t, uint64_t>;
 
+struct RateStatistics
+{
+    RateInfo rInfo;
+    uint64_t count;
+    uint32_t month_num;
+};
+
 class RatePostgresManager
 {
 public:
@@ -15,6 +22,7 @@ public:
     static ResponseCode getUserConnectedRate(uint64_t user_id, std::vector<RateDate> &rates, PostgresRole role);
     static ResponseCode getAllRates(std::vector<RateInfo>& rates, PostgresRole role);
     static ResponseCode createUserRate(uint64_t user_id, uint64_t rate_id, PostgresRole role);
+    static ResponseCode getRateStatistics(std::vector<RateStatistics>& stat, PostgresRole role);
 };
 
 #endif // RATEPOSTGRESMANAGER_H

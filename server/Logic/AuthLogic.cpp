@@ -658,3 +658,69 @@ ResponseCode AuthLogic::adminUserServiceChange(const network::AdminUserServiceCh
 
     return result;
 }
+
+ResponseCode AuthLogic::rateStatistics(std::vector<network::RateStatisticsResponse_MonthCount> &res, PostgresRole role)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        std::vector<RateStatistics> rStats;
+        result = RatePostgresManager::getRateStatistics(rStats, role);
+
+        if(result != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to get rate statistics");
+            break;
+        }
+
+        for(RateStatistics rs: rStats)
+        {
+            network::RateStatisticsResponse_MonthCount rsrmc;
+            rsrmc.set_count_rate(rs.count);
+            rsrmc.set_month(rs.month_num);
+
+            network::RateInfo* ri = new network::RateInfo();
+            rs.rInfo.serialize_to_pb(ri);
+
+            rsrmc.set_allocated_rate_info(ri);
+            res.push_back(rsrmc);
+        }
+    }
+    while(false);
+
+    return result;
+}
+
+ResponseCode AuthLogic::servicetatistics(std::vector<network::ServiceStatisticsResponse_MonthCount> &res, PostgresRole role)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        std::vector<ServiceStatistics> rStats;
+        result = ServiceManagerPostgres::getServiceStatistics(rStats, role);
+
+        if(result != ResponseCode::status_success)
+        {
+            LOG_ERR("Failure to get service statistics");
+            break;
+        }
+
+        for(ServiceStatistics rs: rStats)
+        {
+            network::ServiceStatisticsResponse_MonthCount rsrmc;
+            rsrmc.set_count_service(rs.count);
+            rsrmc.set_month(rs.month_num);
+
+            network::ServiceInfo* ri = new network::ServiceInfo();
+            *ri = rs.rInfo;
+
+            rsrmc.set_allocated_service_info(ri);
+            res.push_back(rsrmc);
+        }
+    }
+    while(false);
+
+    return result;
+}

@@ -103,6 +103,12 @@ void RRManager::readSessionBuffer(std::shared_ptr<ClientChannel> session, ByteBu
         case network::MO_ADMIN_USER_SERVICE_CHANGE:
             responseCode = adminServiceChangeRR(reqContext, resContext);
             break;
+        case network::MO_RATE_STATISTICS:
+            responseCode = adminRateStatisticsRR(reqContext, resContext);
+            break;
+        case network::MO_SERVICE_STATISTICS:
+            responseCode = adminServiceStatisticsRR(reqContext, resContext);
+            break;
         }
     }
     while(false);
@@ -646,6 +652,54 @@ ResponseCode RRManager::adminServiceChangeRR(const network::RequestContext &requ
         resultStatus = AuthLogic::adminUserServiceChange(aurp, *auupr);
 
         response.set_allocated_admin_user_service(auupr);
+    }
+    while(false);
+
+    return resultStatus;
+}
+
+ResponseCode RRManager::adminRateStatisticsRR(const network::RequestContext &requests, network::ResponseContext &response)
+{
+    ResponseCode resultStatus = ResponseCode::status_internal_error;
+
+    do
+    {
+        std::vector<network::RateStatisticsResponse_MonthCount> stats;
+        resultStatus = AuthLogic::rateStatistics(stats, static_cast<PostgresRole>(requests.session_info().role()));
+
+        network::RateStatisticsResponse* rsr = new network::RateStatisticsResponse();
+
+        for(network::RateStatisticsResponse_MonthCount aaa: stats)
+        {
+            network::RateStatisticsResponse_MonthCount* rrrr = rsr->add_rate_month();
+            *rrrr = aaa;
+        }
+
+        response.set_allocated_rate_statistics(rsr);
+    }
+    while(false);
+
+    return resultStatus;
+}
+
+ResponseCode RRManager::adminServiceStatisticsRR(const network::RequestContext &requests, network::ResponseContext &response)
+{
+    ResponseCode resultStatus = ResponseCode::status_internal_error;
+
+    do
+    {
+        std::vector<network::ServiceStatisticsResponse_MonthCount> stats;
+        resultStatus = AuthLogic::servicetatistics(stats, static_cast<PostgresRole>(requests.session_info().role()));
+
+        network::ServiceStatisticsResponse* rsr = new network::ServiceStatisticsResponse();
+
+        for(network::ServiceStatisticsResponse_MonthCount aaa: stats)
+        {
+            network::ServiceStatisticsResponse_MonthCount* rrrr = rsr->add_service_month();
+            *rrrr = aaa;
+        }
+
+        response.set_allocated_service_statistics(rsr);
     }
     while(false);
 

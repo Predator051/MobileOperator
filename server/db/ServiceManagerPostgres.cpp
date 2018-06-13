@@ -243,3 +243,67 @@ ResponseCode ServiceManagerPostgres::createUserService(int64_t user_id, int64_t 
 
     return result;
 }
+
+ResponseCode ServiceManagerPostgres::getServiceStatistics(std::vector<ServiceStatistics> &stat, PostgresRole role)
+{
+    ResponseCode result = ResponseCode::status_internal_error;
+
+    do
+    {
+        try
+        {
+            db_connection_ptr connection = DBHelper::getDBConnection(role);
+
+            if(!connection)
+            {
+                LOG_ERR("Cannot create connection to auth bd!");
+                break;
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getServiceInfo"))
+            {
+                connection->prepare("getServiceInfo",
+                                   "SELECT id, count_mb, count_sms, count_sec_into_net, "
+                                   "count_sec_out_net, live_time, about, cost, name "
+                                   "FROM services WHERE id = $1;");
+            }
+
+            if(!DBHelper::getDBHelper().isPrepared("getServiceInfo"))
+            {
+                connection->prepare("getServiceStatistics",
+                                   "SELECT COUNT(service_id), date_part('month', date) as month, service_id FROM user_connected_service "
+                                   "WHERE date_part('year', date) = date_part('year', NOW()) "
+                                   "GROUP BY date_part('month', date), service_id; ");
+            }
+
+            pqxx::work work(*connection, "getServiceStatistics");
+            pqxx::result res = work.prepared("getServiceStatistics").exec();
+
+            for(const pqxx::tuple& value: res)
+            {
+                ServiceStatistics ss;
+                ss.count = value["count"].as<uint64_t>();
+                ss.month_num = value["month"].as<uint32_t>();
+                uint64_t s_id = value["service_id"].as<uint64_t>();
+
+                pqxx::result res1 = work.prepared("getServiceInfo")(s_id).exec();
+
+                ProtoHelper::parse_from_pg(res1[0], ss.rInfo);
+
+                stat.push_back(ss);
+            }
+
+
+            work.commit();
+            result = ResponseCode::status_success;
+        }
+        catch(const std::exception& e)
+        {
+            LOG_ERR("Failure: trying to query getServiceInfo err: " << e.what());
+            break;
+        }
+    }
+    while(false);
+
+    return result;
+}
