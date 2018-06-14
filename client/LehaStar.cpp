@@ -5,6 +5,7 @@
 #include "Helper.h"
 #include <QTimer>
 #include "Cache/CacheManager.h"
+#include <regex>
 
 LehaStar::LehaStar(std::shared_ptr<MessageManager> message_manager, QWidget *parent) :
     message_manager_(message_manager),
@@ -172,11 +173,24 @@ void LehaStar::updateTime()
 
 void LehaStar::on_testBtn_2_clicked()
 {
+    std::regex regexPhone("^(\\s*)?(\\+)?([- _():=+]?\\d[- _():=+]?){10,14}(\\s*)?$");
+
+
     if(!ui->loginUPTE->toPlainText().isEmpty() && !ui->passwordUPTE->toPlainText().isEmpty())
     {
         std::string login = ui->loginUPTE->toPlainText().toStdString();
         std::string password = ui->passwordUPTE->toPlainText().toStdString();
+
+        if(!std::regex_match(login, regexPhone))
+        {
+            ui->registerLabel->setText("You have to enter phone number!");
+            return;
+        }
         message_manager_->createUser(login, password);
+    }
+    else
+    {
+        ui->registerLabel->setText("Login or password is empty!");
     }
 }
 

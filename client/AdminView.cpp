@@ -18,6 +18,9 @@ AdminView::AdminView(QWidget *parent) :
     ui->setupUi(this);
     connect(this, SIGNAL(onReadData(std::string)), this, SLOT(readData(std::string)));
     ui->tabWidget->setCurrentIndex(0);
+    ui->pushButton_2->setEnabled(false);
+
+
 }
 
 AdminView::~AdminView()
@@ -314,7 +317,7 @@ void AdminView::on_lwUsers_itemClicked(QListWidgetItem *item)
     message_manager_->userPackage(uli->user_id);
     std::this_thread::sleep_for(std::chrono::microseconds(10));
     message_manager_->userStory(uli->user_id);
-
+    ui->pushButton_2->setEnabled(true);
 }
 
 void AdminView::on_pushButton_clicked()
@@ -341,7 +344,6 @@ void AdminView::on_pushButton_2_clicked()
     //connect(rsChangeView.get(), SIGNAL(onClose()), this, SLOT(onChangeViewClose()));
     rsChangeView->show();
 
-    this->setEnabled(false);
 }
 
 void AdminView::on_tabWidget_tabBarClicked(int index)
@@ -352,11 +354,17 @@ void AdminView::on_tabWidget_tabBarClicked(int index)
     case 1:
     {
         message_manager_->rateStatistics();
+
+        ui->serviceCountPlot->xAxis->setLabel("month");
+        ui->serviceCountPlot->yAxis->setLabel("count usage");
         break;
     }
     case 2:
     {
         message_manager_->serviceStatistics();
+
+        ui->serviceCountPlot->xAxis->setLabel("month");
+        ui->serviceCountPlot->yAxis->setLabel("count usage");
         break;
     }
     }

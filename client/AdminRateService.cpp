@@ -4,6 +4,7 @@
 #include "RateServiceChangeView.h"
 #include <thread>
 #include "Helper.h"
+#include <regex>
 
 AdminRateService::AdminRateService(QWidget *parent) :
     QWidget(parent),
@@ -14,6 +15,7 @@ AdminRateService::AdminRateService(QWidget *parent) :
     ui->setupUi(this);
 
     connect(this, SIGNAL(onReadData(std::string)), this, SLOT(readData(std::string)));
+
 }
 
 AdminRateService::~AdminRateService()
